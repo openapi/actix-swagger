@@ -1,0 +1,21 @@
+[package]
+name = "actix-swagger"
+version = "0.0.0"
+authors = ["Sergey Sova <mail@sergeysova.com>"]
+description = "Code generator from swagger file for actix-web framework"
+tags = ["actix", "actix-web", "swagger", "codegen"]
+categories = [
+  "development-tools",
+  "network-programming",
+  "web-programming::http-server",
+  "web-programming"
+]
+license = "MIT"
+repository = "https://github.com/sergeysova/actix-swagger"
+edition = "2018"
+
+[dependencies]
+actix-web = "2.0.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+actix-rt = "1.0.0"
