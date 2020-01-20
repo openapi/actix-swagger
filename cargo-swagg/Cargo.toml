@@ -1,0 +1,18 @@
+[package]
+name = "cargo-swagg"
+version = "0.0.0"
+authors = ["Sergey Sova <mail@sergeysova.com>"]
+categories = [
+  "development-tools",
+  "network-programming",
+  "web-programming::http-server",
+  "web-programming"
+]
+description = "Code generator from swagger file for actix-web framework"
+keywords = ["actix", "actix-web", "swagger", "codegen"]
+license = "MIT"
+edition = "2018"
+repository = "https://github.com/sergeysova/actix-swagger"
+
+[dependencies]
+"actix-swagger" = "0.0"
