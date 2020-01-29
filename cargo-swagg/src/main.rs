@@ -10,11 +10,6 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     let api: OpenAPI = serde_yaml::from_str(&content)?;
     // println!("{:#?}", api);
 
-    // let name = format_ident!("{}", "hello-quote".to_pascal_case());
-    // let prop = format_ident!("{}", "my-super-method".to_snake_case());
-    // let sub = format_ident!("String");
-    // let atype = quote! { Option<#sub> };
-
     // let tokens = quote! {
     //     struct #name {
     //         #prop: #atype
