@@ -22,8 +22,6 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
 
     let api: ApiStruct = api.info.into();
 
-    println!("{}", api.print());
-
     let m1 = BindApiMethod {
         method: HttpMethod::Get,
         name: "sessionGet".to_owned(),
@@ -38,12 +36,14 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
         response_type: "sessionCreateResponse".to_owned(),
     };
 
-    let imple = ImplApiMethods {
+    let methods = ImplApiMethods {
         api_name: api.api_name.clone(),
         methods: vec![m1, m2],
     };
 
-    println!("{}", imple.print());
+    let api_module = ApiModule { api, methods };
+
+    println!("{}", api_module.print());
 
     Ok(())
 }
@@ -200,6 +200,25 @@ impl Printable for ImplApiMethods {
         quote! {
             impl #api_name {
                 #tokens
+            }
+        }
+    }
+}
+
+struct ApiModule {
+    api: ApiStruct,
+    methods: ImplApiMethods,
+}
+
+impl Printable for ApiModule {
+    fn print(&self) -> proc_macro2::TokenStream {
+        let struct_tokens = self.api.print();
+        let methods_tokens = self.methods.print();
+        quote! {
+            pub mod api {
+                #struct_tokens
+
+                #methods_tokens
             }
         }
     }
