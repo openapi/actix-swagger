@@ -223,3 +223,33 @@ impl Printable for ApiModule {
         }
     }
 }
+
+struct ComponentsModule {}
+
+impl Printable for ComponentsModule {
+    fn print(&self) -> proc_macro2::TokenStream {
+        quote! {
+            pub mod components {}
+        }
+    }
+}
+
+struct ResponsesModule {}
+
+impl Printable for ResponsesModule {
+    fn print(&self) -> proc_macro2::TokenStream {
+        quote! {
+            pub mod responses {}
+        }
+    }
+}
+
+struct RequestBodiesModule {}
+
+impl Printable for RequestBodiesModule {
+    fn print(&self) -> proc_macro2::TokenStream {
+        quote! {
+            pub mod request_bodies {}
+        }
+    }
+}
