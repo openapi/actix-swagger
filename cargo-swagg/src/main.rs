@@ -43,7 +43,17 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
 
     let api_module = ApiModule { api, methods };
 
-    println!("{}", api_module.print());
+    let components_module = ComponentsModule {
+        responses: ResponsesModule {},
+        request_bodies: RequestBodiesModule {},
+    };
+
+    let generated_module = GeneratedModule {
+        api_module,
+        components_module,
+    };
+
+    println!("{}", generated_module.print());
 
     Ok(())
 }
@@ -224,12 +234,21 @@ impl Printable for ApiModule {
     }
 }
 
-struct ComponentsModule {}
+struct ComponentsModule {
+    pub responses: ResponsesModule,
+    pub request_bodies: RequestBodiesModule,
+}
 
 impl Printable for ComponentsModule {
     fn print(&self) -> proc_macro2::TokenStream {
+        let responses = self.responses.print();
+        let request_bodies = self.request_bodies.print();
+
         quote! {
-            pub mod components {}
+            pub mod components {
+                #request_bodies
+                #responses
+            }
         }
     }
 }
@@ -250,6 +269,23 @@ impl Printable for RequestBodiesModule {
     fn print(&self) -> proc_macro2::TokenStream {
         quote! {
             pub mod request_bodies {}
+        }
+    }
+}
+
+struct GeneratedModule {
+    pub api_module: ApiModule,
+    pub components_module: ComponentsModule,
+}
+
+impl Printable for GeneratedModule {
+    fn print(&self) -> proc_macro2::TokenStream {
+        let api_module = self.api_module.print();
+        let components_module = self.components_module.print();
+
+        quote! {
+            #api_module
+            #components_module
         }
     }
 }
