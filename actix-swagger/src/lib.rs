@@ -2,13 +2,15 @@ use actix_http::Response;
 use actix_web::{
     dev::{AppService, Factory, HttpServiceFactory},
     http::header::{self, IntoHeaderValue},
-    http::{Cookie, HeaderName, HeaderValue, Method, StatusCode},
+    http::{Cookie, HeaderName, HeaderValue, Method},
     web, Error, FromRequest, HttpRequest, Responder, Scope,
 };
 use futures::future::{err, ok, Ready};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::future::Future;
+
+pub use actix_web::http::StatusCode;
 
 /// Set content-type supported by actix-swagger
 #[derive(Debug)]
@@ -76,8 +78,8 @@ impl<'a, T: Serialize> Answer<'a, T> {
 
     /// Set content-type
     /// Content-Type changes serializer for answer
-    pub fn content_type(mut self, content_type: ContentType) -> Self {
-        self.content_type = Some(content_type);
+    pub fn content_type(mut self, content_type: Option<ContentType>) -> Self {
+        self.content_type = content_type;
 
         self
     }
@@ -88,7 +90,7 @@ impl<'a, T: Serialize> Answer<'a, T> {
             Some(ContentType::Json) => Ok(serde_json::to_string(&self.response)?),
             Some(ContentType::FormData) => Ok(serde_urlencoded::to_string(&self.response)?),
             // Some(ContentType::TextPlain) => Ok(serde_plain::to_string(&self.response)?),
-            None => Ok("".to_owned()),
+            _ => Ok("".to_owned()),
         }
     }
 }
@@ -122,6 +124,8 @@ impl<'a, T: Serialize> Responder for Answer<'a, T> {
         ok(response.body(body))
     }
 }
+
+// https://actix.rs/docs/errors/
 
 /// Handler scope and routes
 pub struct Api {
