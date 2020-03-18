@@ -2,7 +2,7 @@ use actix_http::Response;
 use actix_web::{
     dev::{AppService, Factory, HttpServiceFactory},
     http::header::{self, IntoHeaderValue},
-    http::{Cookie, HeaderName, HeaderValue, Method},
+    http::{Cookie, HeaderName, HeaderValue},
     web, Error, FromRequest, HttpRequest, Responder, Scope,
 };
 use futures::future::{err, ok, Ready};
@@ -18,6 +18,16 @@ pub enum ContentType {
     Json,
     FormData,
     // TextPlain,
+}
+
+#[derive(Debug)]
+pub enum Method {
+    DELETE,
+    GET,
+    HEAD,
+    PATCH,
+    POST,
+    PUT,
 }
 
 impl ToString for ContentType {
@@ -164,7 +174,6 @@ impl Api {
                         Method::PATCH => web::patch(),
                         Method::POST => web::post(),
                         Method::PUT => web::put(),
-                        _ => unimplemented!(),
                     }
                     .to(handler),
                 )
