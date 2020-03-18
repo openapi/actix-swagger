@@ -24,7 +24,6 @@ pub enum ContentType {
 pub enum Method {
     DELETE,
     GET,
-    HEAD,
     PATCH,
     POST,
     PUT,
@@ -170,7 +169,6 @@ impl Api {
                     match method {
                         Method::DELETE => web::delete(),
                         Method::GET => web::get(),
-                        Method::HEAD => web::head(),
                         Method::PATCH => web::patch(),
                         Method::POST => web::post(),
                         Method::PUT => web::put(),

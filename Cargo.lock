@@ -140,7 +140,7 @@ dependencies = [
 
 [[package]]
 name = "actix-swagger"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "actix-http 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-rt 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
