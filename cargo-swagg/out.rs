@@ -56,15 +56,34 @@ pub mod api {
     }
 }
 pub mod components {
-    pub mod request_bodies {}
+    pub mod request_bodies {
+        use serde::{Deserialize, Serialize};
+        #[derive(Debug, Serialize, Deserialize)]
+        pub struct Register {
+            pub email: String,
+            pub demo: Option<Vec<Vec<String>>>,
+        }
+        #[derive(Debug, Serialize, Deserialize)]
+        pub struct RegisterConfirmation {
+            #[serde(rename = "confirmationCode")]
+            pub confirmation_code: String,
+            #[serde(rename = "firstName")]
+            pub first_name: String,
+            #[serde(rename = "lastName")]
+            pub last_name: String,
+            pub password: String,
+            pub demo: Option<f32>,
+            pub customizer: Option<crate::app::MySuperType>,
+        }
+    }
     pub mod responses {
         use serde::{Deserialize, Serialize};
         #[doc = "Answer for registration confirmation"]
-        #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+        #[derive(Debug, Serialize, Deserialize)]
         pub struct RegisterConfirmationFailed {
             pub error: RegisterConfirmationFailedError,
         }
-        #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+        #[derive(Debug, Serialize, Deserialize)]
         pub enum RegisterConfirmationFailedError {
             #[serde(rename = "code_invalid_or_expired")]
             CodeInvalidOrExpired,
@@ -74,7 +93,7 @@ pub mod components {
             InvalidForm,
         }
         #[doc = "Registration link sent to email, now user can find out when the link expires"]
-        #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+        #[derive(Debug, Serialize, Deserialize)]
         pub struct RegistrationRequestCreated {
             #[doc = "UTC Unix TimeStamp when the link expires"]
             #[serde(rename = "expiresAt")]

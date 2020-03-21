@@ -7,7 +7,7 @@ use printer::{
     api::{ApiModule, ApiStruct, BindApiMethod, HttpMethod, ImplApiMethods},
     components::{
         request_bodies::RequestBodiesModule, responses::ResponsesModule, Component, ComponentsModule, EnumVariant,
-        Field, FieldType, FormatInteger, NativeType,
+        Field, FieldType, FormatFloat, FormatInteger, FormatString, NativeType,
     },
     paths::{ContentType, Path, PathsModule, ResponseEnum, ResponseStatus, StatusVariant},
     GeneratedModule, Printable,
@@ -94,7 +94,86 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
                 },
             ],
         },
-        request_bodies: RequestBodiesModule {},
+        request_bodies: RequestBodiesModule {
+            list: vec![
+                Component::Object {
+                    name: "Register".to_owned(),
+                    description: None,
+                    fields: vec![
+                        Field {
+                            name: "email".to_owned(),
+                            required: true,
+                            description: None,
+                            field_type: FieldType::Native(NativeType::String {
+                                format: FormatString::Email,
+                            }),
+                        },
+                        Field {
+                            name: "demo".to_owned(),
+                            required: false,
+                            description: None,
+                            field_type: FieldType::Array(Box::new(FieldType::Array(Box::new(FieldType::Native(
+                                NativeType::String {
+                                    format: FormatString::Email,
+                                },
+                            ))))),
+                        },
+                    ],
+                },
+                Component::Object {
+                    name: "RegisterConfirmation".to_owned(),
+                    description: None,
+                    fields: vec![
+                        Field {
+                            name: "confirmationCode".to_owned(),
+                            required: true,
+                            description: None,
+                            field_type: FieldType::Native(NativeType::String {
+                                format: FormatString::default(),
+                            }),
+                        },
+                        Field {
+                            name: "firstName".to_owned(),
+                            required: true,
+                            description: None,
+                            field_type: FieldType::Native(NativeType::String {
+                                format: FormatString::default(),
+                            }),
+                        },
+                        Field {
+                            name: "lastName".to_owned(),
+                            required: true,
+                            description: None,
+                            field_type: FieldType::Native(NativeType::String {
+                                format: FormatString::default(),
+                            }),
+                        },
+                        Field {
+                            name: "password".to_owned(),
+                            required: true,
+                            description: None,
+                            field_type: FieldType::Native(NativeType::String {
+                                format: FormatString::default(),
+                            }),
+                        },
+                        Field {
+                            name: "demo".to_owned(),
+                            required: false,
+                            description: None,
+                            field_type: FieldType::Native(NativeType::Float {
+                                format: FormatFloat::default(),
+                            }),
+                        },
+                        Field {
+                            name: "customizer".to_owned(),
+                            required: false,
+                            description: None,
+                            field_type: FieldType::Internal("crate::app::MySuperType".to_owned()),
+                        },
+                    ],
+                },
+            ],
+        },
     };
 
     let p1 = Path {
