@@ -105,6 +105,9 @@ pub struct Field {
 
     pub required: bool,
 
+    // Add support for nullable values
+    // https://swagger.io/docs/specification/data-models/data-types/#null
+    // pub nullable: bool,
     pub description: Option<String>,
 
     pub field_type: FieldType,
@@ -145,6 +148,8 @@ pub enum FieldType {
 
     /// Name of the custom type
     Custom(String),
+
+    Array(Box<FieldType>),
 }
 
 impl Printable for FieldType {
@@ -154,6 +159,10 @@ impl Printable for FieldType {
             FieldType::Custom(name) => {
                 let name_ident = format_ident!("{}", name);
                 quote! { #name_ident }
+            }
+            FieldType::Array(inner_type) => {
+                let inner_type_stream = inner_type.print();
+                quote! { Vec<#inner_type_stream> }
             }
         }
     }
@@ -177,7 +186,24 @@ impl Printable for NativeType {
 
 pub enum FormatString {
     None,
+    Binary,
+    Byte,
+    Date,
+    DateTime,
+    Email,
+    Hostname,
+    Ipv4,
+    Ipv6,
+    Password,
     Url,
+    Uuid,
+    Pattern(regex::Regex),
+}
+
+impl Default for FormatString {
+    fn default() -> FormatString {
+        FormatString::None
+    }
 }
 
 impl Printable for FormatString {
