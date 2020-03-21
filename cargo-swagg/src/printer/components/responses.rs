@@ -11,17 +11,7 @@ pub mod module {
 
     impl Printable for ResponsesModule {
         fn print(&self) -> proc_macro2::TokenStream {
-            let mut components = quote! {};
-
-            for component in &self.list {
-                let printed = component.print();
-
-                components = quote! {
-                    #components
-
-                    #printed
-                }
-            }
+            let components = self.list.print();
 
             quote! {
                 pub mod responses {
