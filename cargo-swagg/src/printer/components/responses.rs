@@ -25,6 +25,8 @@ pub mod module {
 
             quote! {
                 pub mod responses {
+                    use serde::{Serialize, Deserialize};
+
                     #components
                 }
             }

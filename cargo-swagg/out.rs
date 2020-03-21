@@ -58,6 +58,7 @@ pub mod api {
 pub mod components {
     pub mod request_bodies {}
     pub mod responses {
+        use serde::{Deserialize, Serialize};
         #[doc = "Answer for registration confirmation"]
         #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
         pub struct RegisterConfirmationFailed {
