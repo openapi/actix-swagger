@@ -23,21 +23,18 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
         method: HttpMethod::Get,
         name: "sessionGet".to_owned(),
         path: "/session".to_owned(),
-        response_type: "sessionGetResponse".to_owned(),
     };
 
     let m2 = BindApiMethod {
         method: HttpMethod::Post,
         name: "sessionCreate".to_owned(),
         path: "/session".to_owned(),
-        response_type: "sessionCreateResponse".to_owned(),
     };
 
     let m3 = BindApiMethod {
         method: HttpMethod::Post,
         name: "registerConfirmation".to_owned(),
         path: "/register/confirmation".to_owned(),
-        response_type: "registerConfirmationResponse".to_owned(),
     };
 
     let methods = ImplApiMethods {

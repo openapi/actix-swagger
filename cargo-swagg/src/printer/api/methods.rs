@@ -28,24 +28,23 @@ pub struct BindApiMethod {
     pub(crate) method: HttpMethod,
     pub(crate) path: String,
     pub(crate) name: String,
-    pub(crate) response_type: String,
 }
 
 impl Printable for BindApiMethod {
     fn print(&self) -> proc_macro2::TokenStream {
         let request_path = self.path.clone();
         let http_method = format_ident!("{}", self.method.to_string());
-        let response_type = format_ident!("{}", self.response_type.to_pascal_case());
+        let path_name = format_ident!("{}", self.name.to_snake_case());
         let bind_method_name = format_ident!("bind_{}", self.name.to_snake_case());
 
         quote! {
             pub fn #bind_method_name<F, T, R>(mut self, handler: F) -> Self
             where
-                F: actix_web::dev::Factory<T, R, actix_swagger::Answer<'static, super::paths::#response_type>>,
-                T: actix_web::FromRequest + 'static,
-                R: std::future::Future<Output = actix_swagger::Answer<'static, super::paths::#response_type>> + 'static,
+                F: Factory<T, R, Answer<'static, paths::#path_name::Response>>,
+                T: FromRequest + 'static,
+                R: Future<Output = Answer<'static, paths::#path_name::Response>> + 'static,
             {
-                self.api = self.api.bind(#request_path.to_owned(), actix_web::http::Method::#http_method, handler);
+                self.api = self.api.bind(#request_path.to_owned(), #http_method, handler);
                 self
             }
         }
@@ -71,6 +70,11 @@ impl Printable for ImplApiMethods {
             };
         }
         quote! {
+            use actix_web::{FromRequest, dev::Factory};
+            use actix_swagger::{Answer, Method};
+            use std::future::Future;
+            use super::paths;
+
             impl #api_name {
                 #tokens
             }
