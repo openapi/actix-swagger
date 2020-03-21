@@ -169,7 +169,10 @@ impl Printable for FieldType {
 }
 
 pub enum NativeType {
+    // Add minimum and maximum ranges
+    // https://swagger.io/docs/specification/data-models/data-types/#numbers
     Integer { format: FormatInteger },
+    Float { format: FormatFloat },
     String { format: FormatString },
     Boolean,
 }
@@ -178,6 +181,7 @@ impl Printable for NativeType {
     fn print(&self) -> proc_macro2::TokenStream {
         match self {
             NativeType::Integer { format } => format.print(),
+            NativeType::Float { format } => format.print(),
             NativeType::String { format } => format.print(),
             NativeType::Boolean => quote! { bool },
         }
@@ -214,17 +218,41 @@ impl Printable for FormatString {
 }
 
 pub enum FormatInteger {
-    None,
     Int32,
     Int64,
+}
+
+impl Default for FormatInteger {
+    fn default() -> FormatInteger {
+        FormatInteger::Int32
+    }
 }
 
 impl Printable for FormatInteger {
     fn print(&self) -> proc_macro2::TokenStream {
         match self {
-            FormatInteger::None => quote! { i32 },
             FormatInteger::Int32 => quote! { i32 },
             FormatInteger::Int64 => quote! { i64 },
+        }
+    }
+}
+
+pub enum FormatFloat {
+    Float,
+    Double,
+}
+
+impl Default for FormatFloat {
+    fn default() -> FormatFloat {
+        FormatFloat::Float
+    }
+}
+
+impl Printable for FormatFloat {
+    fn print(&self) -> proc_macro2::TokenStream {
+        match self {
+            FormatFloat::Float => quote! { f32 },
+            FormatFloat::Double => quote! { f64 },
         }
     }
 }
