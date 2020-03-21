@@ -5,6 +5,7 @@ pub mod module {
     use crate::printer::Printable;
     use quote::quote;
 
+    #[derive(Default)]
     pub struct ResponsesModule {
         pub list: Vec<Component>,
     }

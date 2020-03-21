@@ -2,6 +2,7 @@ use super::Path;
 use crate::printer::Printable;
 use quote::quote;
 
+#[derive(Default)]
 pub struct PathsModule {
     pub paths: Vec<Path>,
 }

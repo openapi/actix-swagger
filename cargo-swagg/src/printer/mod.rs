@@ -21,6 +21,7 @@ where
     }
 }
 
+#[derive(Default)]
 pub struct GeneratedModule {
     pub api_module: api::module::ApiModule,
     pub components_module: components::module::ComponentsModule,

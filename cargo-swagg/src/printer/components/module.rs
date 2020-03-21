@@ -3,6 +3,7 @@ use super::responses::ResponsesModule;
 use crate::printer::Printable;
 use quote::quote;
 
+#[derive(Default)]
 pub struct ComponentsModule {
     pub responses: ResponsesModule,
     pub request_bodies: RequestBodiesModule,

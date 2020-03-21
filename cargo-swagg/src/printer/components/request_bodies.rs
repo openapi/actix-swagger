@@ -4,6 +4,8 @@ pub mod module {
     use super::super::Component;
     use crate::printer::Printable;
     use quote::quote;
+
+    #[derive(Default)]
     pub struct RequestBodiesModule {
         pub list: Vec<Component>,
     }

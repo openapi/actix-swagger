@@ -51,6 +51,7 @@ impl Printable for BindApiMethod {
     }
 }
 
+#[derive(Default)]
 pub struct ImplApiMethods {
     pub api_name: String,
     pub methods: Vec<BindApiMethod>,

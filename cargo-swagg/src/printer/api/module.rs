@@ -3,6 +3,7 @@ use super::structure::ApiStruct;
 use crate::printer::Printable;
 use quote::quote;
 
+#[derive(Default)]
 pub struct ApiModule {
     pub api: ApiStruct,
     pub methods: ImplApiMethods,
