@@ -72,7 +72,7 @@ pub mod paths {
         }
         impl Response {
             #[inline]
-            pub fn answer(self) -> Answer<'static, Self> {
+            pub fn to_answer(self) -> Answer<'static, Self> {
                 let status = match self {
                     Self::Created => StatusCode::CREATED,
                     Self::BadRequest(_) => StatusCode::BAD_REQUEST,
@@ -102,7 +102,7 @@ pub mod paths {
         }
         impl Response {
             #[inline]
-            pub fn answer(self) -> Answer<'static, Self> {
+            pub fn to_answer(self) -> Answer<'static, Self> {
                 let status = match self {
                     Self::Created => StatusCode::CREATED,
                     Self::BadRequest(_) => StatusCode::BAD_REQUEST,

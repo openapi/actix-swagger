@@ -77,6 +77,10 @@ impl Printable for Path {
                 use actix_web::http::StatusCode;
                 use serde::Serialize;
 
+
+
+
+
                 #[derive(Debug, Serialize)]
                 #[serde(untagged)]
                 pub enum Response {
@@ -85,7 +89,7 @@ impl Printable for Path {
 
                 impl Response {
                     #[inline]
-                    pub fn answer(self) -> Answer<'static, Self> {
+                    pub fn to_answer(self) -> Answer<'static, Self> {
                         let status = #status_match;
                         let content_type = #content_type_match;
 
@@ -94,6 +98,15 @@ impl Printable for Path {
                 }
             }
         }
+
+        /*
+            impl<'a> Into<Answer<'a, Response>> for Response {
+                #[inline]
+                fn into(self: Response) -> Answer<'a, Response> {
+                    self.to_answer()
+                }
+            }
+        */
     }
 }
 
@@ -119,10 +132,7 @@ pub struct StatusVariant {
 
 impl StatusVariant {
     pub fn name(&self) -> proc_macro2::Ident {
-        let name = self
-            .x_variant_name
-            .clone()
-            .unwrap_or(self.status.to_string());
+        let name = self.x_variant_name.clone().unwrap_or(self.status.to_string());
         format_ident!("{}", name.to_pascal_case())
     }
 
