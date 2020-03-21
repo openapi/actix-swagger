@@ -6,6 +6,28 @@ pub trait Printable {
     fn print(&self) -> proc_macro2::TokenStream;
 }
 
+impl<T> Printable for Vec<T>
+where
+    T: Printable,
+{
+    fn print(&self) -> proc_macro2::TokenStream {
+        use quote::quote;
+
+        let mut stream = quote! {};
+
+        for field in self {
+            let printed = field.print();
+
+            stream = quote! {
+                #stream
+                #printed
+            };
+        }
+
+        stream
+    }
+}
+
 pub struct GeneratedModule {
     pub api_module: api::module::ApiModule,
     pub components_module: components::module::ComponentsModule,

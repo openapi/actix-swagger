@@ -6,13 +6,27 @@ pub mod module {
     use quote::quote;
 
     pub struct ResponsesModule {
-        pub components: Vec<Component>,
+        pub list: Vec<Component>,
     }
 
     impl Printable for ResponsesModule {
         fn print(&self) -> proc_macro2::TokenStream {
+            let mut components = quote! {};
+
+            for component in &self.list {
+                let printed = component.print();
+
+                components = quote! {
+                    #components
+
+                    #printed
+                }
+            }
+
             quote! {
-                pub mod responses {}
+                pub mod responses {
+                    #components
+                }
             }
         }
     }

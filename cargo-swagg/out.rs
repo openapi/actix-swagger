@@ -5,7 +5,9 @@ pub mod api {
     }
     impl AuthmenowPublicApi {
         pub fn new() -> Self {
-            Self { api: actix_swagger::Api::new() }
+            Self {
+                api: actix_swagger::Api::new(),
+            }
         }
     }
     impl Default for AuthmenowPublicApi {
@@ -55,7 +57,29 @@ pub mod api {
 }
 pub mod components {
     pub mod request_bodies {}
-    pub mod responses {}
+    pub mod responses {
+        #[doc = "Answer for registration confirmation"]
+        #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+        pub struct RegisterConfirmationFailed {
+            pub error: RegisterConfirmationFailedError,
+        }
+        #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+        pub enum RegisterConfirmationFailedError {
+            #[serde(rename = "code_invalid_or_expired")]
+            CodeInvalidOrExpired,
+            #[serde(rename = "email_already_activated")]
+            EmailAlreadyActivated,
+            #[serde(rename = "invalid_form")]
+            InvalidForm,
+        }
+        #[doc = "Registration link sent to email, now user can find out when the link expires"]
+        #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+        pub struct RegistrationRequestCreated {
+            #[doc = "UTC Unix TimeStamp when the link expires"]
+            #[serde(rename = "expiresAt")]
+            pub expires_at: i64,
+        }
+    }
 }
 pub mod paths {
     pub mod register_confirmation {

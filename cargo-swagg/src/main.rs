@@ -5,7 +5,10 @@ mod printer;
 
 use printer::{
     api::{ApiModule, ApiStruct, BindApiMethod, HttpMethod, ImplApiMethods},
-    components::{request_bodies::RequestBodiesModule, responses::ResponsesModule, ComponentsModule},
+    components::{
+        request_bodies::RequestBodiesModule, responses::ResponsesModule, Component, ComponentsModule, EnumVariant,
+        Field, FieldType, FormatInteger, NativeType,
+    },
     paths::{ContentType, Path, PathsModule, ResponseEnum, ResponseStatus, StatusVariant},
     GeneratedModule, Printable,
 };
@@ -45,7 +48,52 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     let api_module = ApiModule { api, methods };
 
     let components_module = ComponentsModule {
-        responses: ResponsesModule { components: vec![] },
+        responses: ResponsesModule {
+            list: vec![
+                Component::Object {
+                    name: "RegisterConfirmationFailed".to_owned(),
+                    fields: vec![Field {
+                        name: "error".to_owned(),
+                        required: true,
+                        description: None,
+                        field_type: FieldType::Custom("RegisterConfirmationFailedError".to_owned()),
+                    }],
+                    description: Some("Answer for registration confirmation".to_owned()),
+                },
+                Component::Enum {
+                    name: "RegisterConfirmationFailedError".to_owned(),
+                    variants: vec![
+                        EnumVariant {
+                            name: "code_invalid_or_expired".to_owned(),
+                            description: None,
+                        },
+                        EnumVariant {
+                            name: "email_already_activated".to_owned(),
+                            description: None,
+                        },
+                        EnumVariant {
+                            name: "invalid_form".to_owned(),
+                            description: None,
+                        },
+                    ],
+                    description: None,
+                },
+                Component::Object {
+                    name: "RegistrationRequestCreated".to_owned(),
+                    description: Some(
+                        "Registration link sent to email, now user can find out when the link expires".to_owned(),
+                    ),
+                    fields: vec![Field {
+                        name: "expiresAt".to_owned(),
+                        required: true,
+                        description: Some("UTC Unix TimeStamp when the link expires".to_owned()),
+                        field_type: FieldType::Native(NativeType::Integer {
+                            format: FormatInteger::Int64,
+                        }),
+                    }],
+                },
+            ],
+        },
         request_bodies: RequestBodiesModule {},
     };
 
