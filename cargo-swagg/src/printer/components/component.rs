@@ -47,7 +47,7 @@ impl Printable for Component {
 
                 quote! {
                     #description
-                    #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+                    #[derive(Debug, Serialize, Deserialize)]
                     pub struct #name_ident {
                         #fields_stream
                     }
@@ -58,7 +58,7 @@ impl Printable for Component {
 
                 quote! {
                     #description
-                    #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+                    #[derive(Debug, Serialize, Deserialize)]
                     pub enum #name_ident {
                         #variants_stream
                     }
@@ -150,6 +150,10 @@ pub enum FieldType {
     Custom(String),
 
     Array(Box<FieldType>),
+
+    /// Should be used with `x-rust-type: crate::app::MyType`
+    /// MyType must implement Debug, Serialize, Deserialize
+    Internal(String),
 }
 
 impl Printable for FieldType {
@@ -164,7 +168,31 @@ impl Printable for FieldType {
                 let inner_type_stream = inner_type.print();
                 quote! { Vec<#inner_type_stream> }
             }
+            FieldType::Internal(name) => path_to_stream(name.clone()),
         }
+    }
+}
+
+/// TODO: use https://docs.rs/itertools/0.9.0/itertools/trait.Itertools.html#method.fold1
+fn path_to_stream(path: String) -> proc_macro2::TokenStream {
+    if path.contains("::") {
+        let mut parts = path.split("::");
+        let first = parts.next().expect("Path split to parts requires first element");
+        let first_ident = format_ident!("{}", first);
+
+        let mut stream = quote! { #first_ident };
+
+        for item in parts {
+            let ident = format_ident!("{}", item);
+            stream = quote! { #stream::#ident };
+        }
+
+        stream
+    } else {
+        // Can panic if identifier is incorrect.
+        // TODO: add regexp check for input
+        let ident = format_ident!("{}", path);
+        quote! { #ident }
     }
 }
 
