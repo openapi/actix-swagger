@@ -86,7 +86,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
                 StatusVariant {
                     status: ResponseStatus::Created,
                     response_type_name: None,
-                    description: Some("User logined, cookies writed".to_owned()),
+                    description: Some("User logined, cookies writed\nFoo".to_owned()),
                     content_type: None,
                     x_variant_name: None,
                 },
@@ -318,7 +318,9 @@ impl Printable for ComponentsModule {
     }
 }
 
-struct ResponsesModule {}
+struct ResponsesModule {
+    pub components: Vec<Component>,
+}
 
 impl Printable for ResponsesModule {
     fn print(&self) -> proc_macro2::TokenStream {
@@ -589,4 +591,54 @@ impl Printable for GeneratedModule {
             #paths_module
         }
     }
+}
+
+enum Component {
+    Object {
+        name: String,
+        fields: Vec<Field>,
+    },
+    Enum {
+        name: String,
+        variants: Vec<EnumVariant>,
+    },
+}
+
+struct EnumVariant {
+    pub name: String,
+}
+
+/// Field in object definition
+struct Field {
+    /// field name in any case
+    pub name: String,
+
+    pub required: bool,
+
+    pub description: Option<String>,
+
+    pub field_type: FieldType,
+}
+
+enum FieldType {
+    Native(NativeType),
+
+    /// Name of the custom type
+    Custom(String),
+}
+
+enum NativeType {
+    Integer { format: FormatInteger },
+    String { format: FormatString },
+    Boolean,
+}
+
+enum FormatString {
+    None,
+    Url,
+}
+
+enum FormatInteger {
+    None,
+    Int32,
 }
