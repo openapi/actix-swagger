@@ -174,6 +174,8 @@ impl Printable for FieldType {
 }
 
 /// TODO: use https://docs.rs/itertools/0.9.0/itertools/trait.Itertools.html#method.fold1
+/// https://t.me/rust_beginners_ru/57578
+/// https://t.me/rust_beginners_ru/57579
 fn path_to_stream(path: String) -> proc_macro2::TokenStream {
     if path.contains("::") {
         let mut parts = path.split("::");

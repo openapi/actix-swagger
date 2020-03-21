@@ -13,18 +13,11 @@ where
     fn print(&self) -> proc_macro2::TokenStream {
         use quote::quote;
 
-        let mut stream = quote! {};
+        let list = self.iter().map(|x| x.print());
 
-        for field in self {
-            let printed = field.print();
-
-            stream = quote! {
-                #stream
-                #printed
-            };
+        quote! {
+            #(#list)*
         }
-
-        stream
     }
 }
 
