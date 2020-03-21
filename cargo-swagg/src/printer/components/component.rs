@@ -179,17 +179,15 @@ impl Printable for FieldType {
 fn path_to_stream(path: String) -> proc_macro2::TokenStream {
     if path.contains("::") {
         let mut parts = path.split("::");
+
         let first = parts.next().expect("Path split to parts requires first element");
         let first_ident = format_ident!("{}", first);
 
-        let mut stream = quote! { #first_ident };
+        let rest = parts.map(|p| format_ident!("{}", p));
 
-        for item in parts {
-            let ident = format_ident!("{}", item);
-            stream = quote! { #stream::#ident };
+        quote! {
+            #first_ident #(::#rest)*
         }
-
-        stream
     } else {
         // Can panic if identifier is incorrect.
         // TODO: add regexp check for input

@@ -10,31 +10,14 @@ pub struct Path {
 
 impl Path {
     fn print_enum_variants(&self) -> proc_macro2::TokenStream {
-        let mut tokens = quote! {};
+        let variants = self.response.responses.iter().map(|r| r.print_enum_variant());
 
-        for status in &self.response.responses {
-            let variant = status.print_enum_variant();
-
-            tokens = quote! {
-                #tokens
-                #variant,
-            };
-        }
-
-        tokens
+        quote! { #(#variants,)* }
     }
 
     fn print_status_variants(&self) -> proc_macro2::TokenStream {
-        let mut tokens = quote! {};
-
-        for status in &self.response.responses {
-            let variant = status.print_status_variant();
-
-            tokens = quote! {
-                #tokens
-                #variant,
-            };
-        }
+        let variants = self.response.responses.iter().map(|r| r.print_status_variant());
+        let tokens = quote! { #(#variants,)* };
 
         quote! {
             match self {
@@ -44,16 +27,8 @@ impl Path {
     }
 
     fn print_content_type_variants(&self) -> proc_macro2::TokenStream {
-        let mut tokens = quote! {};
-
-        for status in &self.response.responses {
-            let variant = status.print_content_type_variant();
-
-            tokens = quote! {
-                #tokens
-                #variant,
-            }
-        }
+        let variants = self.response.responses.iter().map(|r| r.print_content_type_variant());
+        let tokens = quote! { #(#variants,)* };
 
         quote! {
             match self {
@@ -76,10 +51,6 @@ impl Printable for Path {
                 use actix_swagger::{Answer, ContentType};
                 use actix_web::http::StatusCode;
                 use serde::Serialize;
-
-
-
-
 
                 #[derive(Debug, Serialize)]
                 #[serde(untagged)]
@@ -176,14 +147,9 @@ impl StatusVariant {
         let variant_name = self.name();
         let status = format_ident!("{}", self.status.to_string().to_constant_case());
 
-        if let Some(_) = self.response_type_name {
-            quote! {
-                Self::#variant_name(_) => StatusCode::#status
-            }
-        } else {
-            quote! {
-                Self::#variant_name => StatusCode::#status
-            }
+        match self.response_type_name {
+            Some(_) => quote! { Self::#variant_name(_) => StatusCode::#status },
+            None => quote! { Self::#variant_name => StatusCode::#status },
         }
     }
 
@@ -191,14 +157,9 @@ impl StatusVariant {
         let variant_name = self.name();
         let content_type = self.content_type();
 
-        if let Some(_) = self.response_type_name {
-            quote! {
-                Self::#variant_name(_) => #content_type
-            }
-        } else {
-            quote! {
-                Self::#variant_name => #content_type
-            }
+        match self.response_type_name {
+            Some(_) => quote! { Self::#variant_name(_) => #content_type },
+            None => quote! { Self::#variant_name => #content_type },
         }
     }
 }
@@ -208,14 +169,18 @@ pub enum ContentType {
     Json,
 }
 
+impl ToString for ContentType {
+    fn to_string(&self) -> String {
+        match self {
+            ContentType::Json => "Json",
+        }
+        .to_owned()
+    }
+}
+
 impl Printable for ContentType {
     fn print(&self) -> proc_macro2::TokenStream {
-        let ident = format_ident!(
-            "{}",
-            match self {
-                Self::Json => "Json",
-            }
-        );
+        let ident = format_ident!("{}", self.to_string());
 
         quote! { #ident }
     }

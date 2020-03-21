@@ -25,9 +25,9 @@ impl ToString for HttpMethod {
 }
 
 pub struct BindApiMethod {
-    pub(crate) method: HttpMethod,
-    pub(crate) path: String,
-    pub(crate) name: String,
+    pub method: HttpMethod,
+    pub path: String,
+    pub name: String,
 }
 
 impl Printable for BindApiMethod {
@@ -60,16 +60,8 @@ pub struct ImplApiMethods {
 impl Printable for ImplApiMethods {
     fn print(&self) -> proc_macro2::TokenStream {
         let api_name = format_ident!("{}", to_struct_name(self.api_name.to_owned()));
-        let mut tokens = quote! {};
+        let methods = self.methods.print();
 
-        for method in &self.methods {
-            let method_tokens = method.print();
-            tokens = quote! {
-                #tokens
-
-                #method_tokens
-            };
-        }
         quote! {
             use actix_web::{FromRequest, dev::Factory};
             use actix_swagger::{Answer, Method};
@@ -77,7 +69,7 @@ impl Printable for ImplApiMethods {
             use super::paths;
 
             impl #api_name {
-                #tokens
+                #methods
             }
         }
     }

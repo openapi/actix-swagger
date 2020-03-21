@@ -9,20 +9,11 @@ pub struct PathsModule {
 
 impl Printable for PathsModule {
     fn print(&self) -> proc_macro2::TokenStream {
-        let mut tokens = quote! {};
-
-        for path in &self.paths {
-            let printed = path.print();
-
-            tokens = quote! {
-                #tokens
-                #printed
-            };
-        }
+        let paths = self.paths.print();
 
         quote! {
             pub mod paths {
-                #tokens
+                #paths
             }
         }
     }
