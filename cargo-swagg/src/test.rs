@@ -1,4 +1,4 @@
-pub fn shot<T: crate::printer::Printable>(input: T) -> Vec<String> {
+pub fn shot<T: crate::printer::Printable>(input: T) -> String {
     use std::fs::File;
     use std::io::{Read, Write};
     use std::process::Command;
@@ -33,5 +33,5 @@ pub fn shot<T: crate::printer::Printable>(input: T) -> Vec<String> {
     drop(file);
     dir.close().expect("Failed to close directory");
 
-    result.split("\n").map(|x| format!("  {: <120}", x)).collect()
+    result
 }

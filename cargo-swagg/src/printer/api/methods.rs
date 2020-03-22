@@ -100,7 +100,7 @@ impl Printable for ImplApi {
 mod tests {
     use super::*;
     use crate::test::shot;
-    use insta::assert_yaml_snapshot;
+    use insta::assert_snapshot;
 
     fn api(methods: Vec<BindApiMethod>) -> ImplApi {
         ImplApi {
@@ -111,14 +111,12 @@ mod tests {
 
     #[test]
     fn default_api() {
-        assert_yaml_snapshot!(shot(ImplApi::default()), @r###"
-        ---
-        - "  use super::paths;                                                                                                       "
-        - "  use actix_swagger::{Answer, Method};                                                                                    "
-        - "  use actix_web::{dev::Factory, FromRequest};                                                                             "
-        - "  use std::future::Future;                                                                                                "
-        - "  impl Api {}                                                                                                             "
-        - "                                                                                                                          "
+        assert_snapshot!(shot(ImplApi::default()), @r###"
+        use super::paths;
+        use actix_swagger::{Answer, Method};
+        use actix_web::{dev::Factory, FromRequest};
+        use std::future::Future;
+        impl Api {}
         "###);
     }
 
@@ -129,14 +127,12 @@ mod tests {
             methods: vec![],
         };
 
-        assert_yaml_snapshot!(shot(api), @r###"
-        ---
-        - "  use super::paths;                                                                                                       "
-        - "  use actix_swagger::{Answer, Method};                                                                                    "
-        - "  use actix_web::{dev::Factory, FromRequest};                                                                             "
-        - "  use std::future::Future;                                                                                                "
-        - "  impl Hello {}                                                                                                           "
-        - "                                                                                                                          "
+        assert_snapshot!(shot(api), @r###"
+        use super::paths;
+        use actix_swagger::{Answer, Method};
+        use actix_web::{dev::Factory, FromRequest};
+        use std::future::Future;
+        impl Hello {}
         "###);
     }
 
@@ -155,24 +151,22 @@ mod tests {
             methods: vec![],
         };
 
-        assert_yaml_snapshot!(shot(vec![api1, api2, api3]), @r###"
-        ---
-        - "  use super::paths;                                                                                                       "
-        - "  use actix_swagger::{Answer, Method};                                                                                    "
-        - "  use actix_web::{dev::Factory, FromRequest};                                                                             "
-        - "  use std::future::Future;                                                                                                "
-        - "  impl HelloGoof {}                                                                                                       "
-        - "  use super::paths;                                                                                                       "
-        - "  use actix_swagger::{Answer, Method};                                                                                    "
-        - "  use actix_web::{dev::Factory, FromRequest};                                                                             "
-        - "  use std::future::Future;                                                                                                "
-        - "  impl ThatsMyName {}                                                                                                     "
-        - "  use super::paths;                                                                                                       "
-        - "  use actix_swagger::{Answer, Method};                                                                                    "
-        - "  use actix_web::{dev::Factory, FromRequest};                                                                             "
-        - "  use std::future::Future;                                                                                                "
-        - "  impl RandomizeThisFWooorld {}                                                                                           "
-        - "                                                                                                                          "
+        assert_snapshot!(shot(vec![api1, api2, api3]), @r###"
+        use super::paths;
+        use actix_swagger::{Answer, Method};
+        use actix_web::{dev::Factory, FromRequest};
+        use std::future::Future;
+        impl HelloGoof {}
+        use super::paths;
+        use actix_swagger::{Answer, Method};
+        use actix_web::{dev::Factory, FromRequest};
+        use std::future::Future;
+        impl ThatsMyName {}
+        use super::paths;
+        use actix_swagger::{Answer, Method};
+        use actix_web::{dev::Factory, FromRequest};
+        use std::future::Future;
+        impl RandomizeThisFWooorld {}
         "###);
     }
 
@@ -185,26 +179,24 @@ mod tests {
             request_body: None,
         };
 
-        assert_yaml_snapshot!(shot(api(vec![method])), @r###"
-        ---
-        - "  use super::paths;                                                                                                       "
-        - "  use actix_swagger::{Answer, Method};                                                                                    "
-        - "  use actix_web::{dev::Factory, FromRequest};                                                                             "
-        - "  use std::future::Future;                                                                                                "
-        - "  impl TestApi {                                                                                                          "
-        - "      pub fn bind_hey_make_my_day<F, T, R>(mut self, handler: F) -> Self                                                  "
-        - "      where                                                                                                               "
-        - "          F: Factory<T, R, Answer<'static, paths::hey_make_my_day::Response>>,                                            "
-        - "          T: FromRequest + 'static,                                                                                       "
-        - "          R: Future<Output = Answer<'static, paths::hey_make_my_day::Response>> + 'static,                                "
-        - "      {                                                                                                                   "
-        - "          self.api = self                                                                                                 "
-        - "              .api                                                                                                        "
-        - "              .bind(\"/hey-make/my-day\".to_owned(), Method::POST, handler);                                                "
-        - "          self                                                                                                            "
-        - "      }                                                                                                                   "
-        - "  }                                                                                                                       "
-        - "                                                                                                                          "
+        assert_snapshot!(shot(api(vec![method])), @r###"
+        use super::paths;
+        use actix_swagger::{Answer, Method};
+        use actix_web::{dev::Factory, FromRequest};
+        use std::future::Future;
+        impl TestApi {
+            pub fn bind_hey_make_my_day<F, T, R>(mut self, handler: F) -> Self
+            where
+                F: Factory<T, R, Answer<'static, paths::hey_make_my_day::Response>>,
+                T: FromRequest + 'static,
+                R: Future<Output = Answer<'static, paths::hey_make_my_day::Response>> + 'static,
+            {
+                self.api = self
+                    .api
+                    .bind("/hey-make/my-day".to_owned(), Method::POST, handler);
+                self
+            }
+        }
         "###);
     }
 
@@ -224,40 +216,38 @@ mod tests {
             request_body: None,
         };
 
-        assert_yaml_snapshot!(shot(api(vec![method1, method2])), @r###"
-        ---
-        - "  use super::paths;                                                                                                       "
-        - "  use actix_swagger::{Answer, Method};                                                                                    "
-        - "  use actix_web::{dev::Factory, FromRequest};                                                                             "
-        - "  use std::future::Future;                                                                                                "
-        - "  impl TestApi {                                                                                                          "
-        - "      pub fn bind_hey_make_my_day<F, T, R>(mut self, handler: F) -> Self                                                  "
-        - "      where                                                                                                               "
-        - "          F: Factory<T, R, Answer<'static, paths::hey_make_my_day::Response>>,                                            "
-        - "          T: FromRequest + 'static,                                                                                       "
-        - "          R: Future<Output = Answer<'static, paths::hey_make_my_day::Response>> + 'static,                                "
-        - "      {                                                                                                                   "
-        - "          self.api = self                                                                                                 "
-        - "              .api                                                                                                        "
-        - "              .bind(\"/hey-make/my-day\".to_owned(), Method::POST, handler);                                                "
-        - "          self                                                                                                            "
-        - "      }                                                                                                                   "
-        - "      pub fn bind_this_is_my_test_name_in_pascal_case<F, T, R>(mut self, handler: F) -> Self                              "
-        - "      where                                                                                                               "
-        - "          F: Factory<T, R, Answer<'static, paths::this_is_my_test_name_in_pascal_case::Response>>,                        "
-        - "          T: FromRequest + 'static,                                                                                       "
-        - "          R: Future<Output = Answer<'static, paths::this_is_my_test_name_in_pascal_case::Response>>                       "
-        - "              + 'static,                                                                                                  "
-        - "      {                                                                                                                   "
-        - "          self.api = self.api.bind(                                                                                       "
-        - "              \"/Very/Very/VEry/Loo000ng/Path\".to_owned(),                                                                 "
-        - "              Method::DELETE,                                                                                             "
-        - "              handler,                                                                                                    "
-        - "          );                                                                                                              "
-        - "          self                                                                                                            "
-        - "      }                                                                                                                   "
-        - "  }                                                                                                                       "
-        - "                                                                                                                          "
+        assert_snapshot!(shot(api(vec![method1, method2])), @r###"
+        use super::paths;
+        use actix_swagger::{Answer, Method};
+        use actix_web::{dev::Factory, FromRequest};
+        use std::future::Future;
+        impl TestApi {
+            pub fn bind_hey_make_my_day<F, T, R>(mut self, handler: F) -> Self
+            where
+                F: Factory<T, R, Answer<'static, paths::hey_make_my_day::Response>>,
+                T: FromRequest + 'static,
+                R: Future<Output = Answer<'static, paths::hey_make_my_day::Response>> + 'static,
+            {
+                self.api = self
+                    .api
+                    .bind("/hey-make/my-day".to_owned(), Method::POST, handler);
+                self
+            }
+            pub fn bind_this_is_my_test_name_in_pascal_case<F, T, R>(mut self, handler: F) -> Self
+            where
+                F: Factory<T, R, Answer<'static, paths::this_is_my_test_name_in_pascal_case::Response>>,
+                T: FromRequest + 'static,
+                R: Future<Output = Answer<'static, paths::this_is_my_test_name_in_pascal_case::Response>>
+                    + 'static,
+            {
+                self.api = self.api.bind(
+                    "/Very/Very/VEry/Loo000ng/Path".to_owned(),
+                    Method::DELETE,
+                    handler,
+                );
+                self
+            }
+        }
         "###);
     }
 
@@ -270,25 +260,23 @@ mod tests {
             request_body: Some("SessionCreateBody".to_owned()),
         };
 
-        assert_yaml_snapshot!(shot(api(vec![method])), @r###"
-        ---
-        - "  use super::paths;                                                                                                       "
-        - "  use actix_swagger::{Answer, Method};                                                                                    "
-        - "  use actix_web::{dev::Factory, FromRequest};                                                                             "
-        - "  use std::future::Future;                                                                                                "
-        - "  impl TestApi {                                                                                                          "
-        - "      #[doc = \"Request body - super::requst_bodies::SessionCreateBody\"]                                                   "
-        - "      pub fn bind_session_create<F, T, R>(mut self, handler: F) -> Self                                                   "
-        - "      where                                                                                                               "
-        - "          F: Factory<T, R, Answer<'static, paths::session_create::Response>>,                                             "
-        - "          T: FromRequest + 'static,                                                                                       "
-        - "          R: Future<Output = Answer<'static, paths::session_create::Response>> + 'static,                                 "
-        - "      {                                                                                                                   "
-        - "          self.api = self.api.bind(\"/session\".to_owned(), Method::POST, handler);                                         "
-        - "          self                                                                                                            "
-        - "      }                                                                                                                   "
-        - "  }                                                                                                                       "
-        - "                                                                                                                          "
+        assert_snapshot!(shot(api(vec![method])), @r###"
+        use super::paths;
+        use actix_swagger::{Answer, Method};
+        use actix_web::{dev::Factory, FromRequest};
+        use std::future::Future;
+        impl TestApi {
+            #[doc = "Request body - super::requst_bodies::SessionCreateBody"]
+            pub fn bind_session_create<F, T, R>(mut self, handler: F) -> Self
+            where
+                F: Factory<T, R, Answer<'static, paths::session_create::Response>>,
+                T: FromRequest + 'static,
+                R: Future<Output = Answer<'static, paths::session_create::Response>> + 'static,
+            {
+                self.api = self.api.bind("/session".to_owned(), Method::POST, handler);
+                self
+            }
+        }
         "###);
     }
 }
