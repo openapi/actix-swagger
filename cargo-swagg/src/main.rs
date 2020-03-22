@@ -4,7 +4,7 @@ use std::fs;
 mod printer;
 
 use printer::{
-    api::{ApiModule, ApiStruct, BindApiMethod, HttpMethod, ImplApiMethods},
+    api::{ApiModule, ApiStruct, BindApiMethod, HttpMethod, ImplApi},
     components::{
         request_bodies::RequestBodiesModule, responses::ResponsesModule, Component, ComponentsModule, EnumVariant,
         Field, FieldType, FormatFloat, FormatInteger, FormatString, NativeType,
@@ -26,21 +26,24 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
         method: HttpMethod::Get,
         name: "sessionGet".to_owned(),
         path: "/session".to_owned(),
+        request_body: None,
     };
 
     let m2 = BindApiMethod {
         method: HttpMethod::Post,
         name: "sessionCreate".to_owned(),
         path: "/session".to_owned(),
+        request_body: Some("SessionCreateBody".to_owned()),
     };
 
     let m3 = BindApiMethod {
         method: HttpMethod::Post,
         name: "registerConfirmation".to_owned(),
         path: "/register/confirmation".to_owned(),
+        request_body: Some("RegisterConfirmation".to_owned()),
     };
 
-    let methods = ImplApiMethods {
+    let methods = ImplApi {
         api_name: api.api_name.clone(),
         methods: vec![m1, m2, m3],
     };

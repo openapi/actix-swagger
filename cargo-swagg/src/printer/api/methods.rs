@@ -28,6 +28,7 @@ pub struct BindApiMethod {
     pub method: HttpMethod,
     pub path: String,
     pub name: String,
+    pub request_body: Option<String>,
 }
 
 impl Printable for BindApiMethod {
@@ -36,8 +37,17 @@ impl Printable for BindApiMethod {
         let http_method = format_ident!("{}", self.method.to_string());
         let path_name = format_ident!("{}", self.name.to_snake_case());
         let bind_method_name = format_ident!("bind_{}", self.name.to_snake_case());
+        let request_body_stream = match &self.request_body {
+            Some(request_body) => {
+                let body = request_body.to_pascal_case();
+                let doc = format!("Request body - super::requst_bodies::{}", body);
+                quote! { #[doc = #doc] }
+            }
+            None => quote! {},
+        };
 
         quote! {
+            #request_body_stream
             pub fn #bind_method_name<F, T, R>(mut self, handler: F) -> Self
             where
                 F: Factory<T, R, Answer<'static, paths::#path_name::Response>>,
@@ -52,12 +62,12 @@ impl Printable for BindApiMethod {
 }
 
 #[derive(Default)]
-pub struct ImplApiMethods {
+pub struct ImplApi {
     pub api_name: String,
     pub methods: Vec<BindApiMethod>,
 }
 
-impl Printable for ImplApiMethods {
+impl Printable for ImplApi {
     fn print(&self) -> proc_macro2::TokenStream {
         let api_name = format_ident!("{}", to_struct_name(self.api_name.to_owned()));
         let methods = self.methods.print();

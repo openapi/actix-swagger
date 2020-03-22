@@ -35,6 +35,7 @@ pub mod api {
             self.api = self.api.bind("/session".to_owned(), GET, handler);
             self
         }
+        #[doc = "Request body - super::requst_bodies::SessionCreateBody"]
         pub fn bind_session_create<F, T, R>(mut self, handler: F) -> Self
         where
             F: Factory<T, R, Answer<'static, paths::session_create::Response>>,
@@ -44,6 +45,7 @@ pub mod api {
             self.api = self.api.bind("/session".to_owned(), POST, handler);
             self
         }
+        #[doc = "Request body - super::requst_bodies::RegisterConfirmation"]
         pub fn bind_register_confirmation<F, T, R>(mut self, handler: F) -> Self
         where
             F: Factory<T, R, Answer<'static, paths::register_confirmation::Response>>,
