@@ -58,6 +58,19 @@ pub mod api {
     }
 }
 pub mod components {
+    pub mod parameters {
+        use serde::{Deserialize, Serialize};
+        #[doc = "response_type is set to code indicating that you want an authorization code as the response."]
+        #[derive(Debug, Serialize, Deserialize)]
+        pub enum OauthResponseType {
+            #[serde(rename = "code")]
+            Code,
+        }
+        #[doc = "The client_id is the identifier for your app"]
+        pub type OauthClientId = uuid::Uuid;
+        #[doc = "redirect_uri may be optional depending on the API, but is highly recommended"]
+        pub type OauthRedirectUri = String;
+    }
     pub mod request_bodies {
         use serde::{Deserialize, Serialize};
         #[derive(Debug, Serialize, Deserialize)]

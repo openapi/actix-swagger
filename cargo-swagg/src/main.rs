@@ -6,8 +6,8 @@ mod printer;
 use printer::{
     api::{ApiModule, ApiStruct, BindApiMethod, HttpMethod, ImplApi},
     components::{
-        request_bodies::RequestBodiesModule, responses::ResponsesModule, Component, ComponentsModule, EnumVariant,
-        Field, FieldType, FormatFloat, FormatInteger, FormatString, NativeType,
+        parameters::ParametersModule, request_bodies::RequestBodiesModule, responses::ResponsesModule, Component,
+        ComponentsModule, EnumVariant, Field, FieldType, FormatFloat, FormatInteger, FormatString, NativeType,
     },
     paths::{ContentType, Path, PathsModule, ResponseEnum, ResponseStatus, StatusVariant},
     GeneratedModule, Printable,
@@ -50,134 +50,162 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
 
     let api_module = ApiModule { api, methods };
 
-    let components_module = ComponentsModule {
-        responses: ResponsesModule {
-            list: vec![
-                Component::Object {
-                    name: "RegisterConfirmationFailed".to_owned(),
-                    fields: vec![Field {
-                        name: "error".to_owned(),
-                        required: true,
-                        description: None,
-                        field_type: FieldType::Custom("RegisterConfirmationFailedError".to_owned()),
-                    }],
-                    description: Some("Answer for registration confirmation".to_owned()),
-                },
+    let components_module =
+        ComponentsModule {
+            parameters: ParametersModule {
+                list: vec![
                 Component::Enum {
-                    name: "RegisterConfirmationFailedError".to_owned(),
-                    variants: vec![
-                        EnumVariant {
-                            name: "code_invalid_or_expired".to_owned(),
-                            description: None,
-                        },
-                        EnumVariant {
-                            name: "email_already_activated".to_owned(),
-                            description: None,
-                        },
-                        EnumVariant {
-                            name: "invalid_form".to_owned(),
-                            description: None,
-                        },
-                    ],
-                    description: None,
-                },
-                Component::Object {
-                    name: "RegistrationRequestCreated".to_owned(),
+                    name: "OAuthResponseType".to_owned(),
                     description: Some(
-                        "Registration link sent to email, now user can find out when the link expires".to_owned(),
+                        "response_type is set to code indicating that you want an authorization code as the response."
+                            .to_owned(),
                     ),
-                    fields: vec![Field {
-                        name: "expiresAt".to_owned(),
-                        required: true,
-                        description: Some("UTC Unix TimeStamp when the link expires".to_owned()),
-                        field_type: FieldType::Native(NativeType::Integer {
-                            format: FormatInteger::Int64,
-                        }),
+                    variants: vec![EnumVariant {
+                        name: "code".to_owned(),
+                        description: None,
                     }],
                 },
+                Component::Type {
+                    name: "OAuthClientId".to_owned(),
+                    description: Some("The client_id is the identifier for your app".to_owned()),
+                    type_value: FieldType::Internal("uuid::Uuid".to_owned()),
+                },
+                Component::Type {
+                    name: "OAuthRedirectUri".to_owned(),
+                    description: Some(
+                        "redirect_uri may be optional depending on the API, but is highly recommended".to_owned(),
+                    ),
+                    type_value: FieldType::Native(NativeType::String { format: Default::default() }),
+                },
             ],
-        },
-        request_bodies: RequestBodiesModule {
-            list: vec![
-                Component::Object {
-                    name: "Register".to_owned(),
-                    description: None,
-                    fields: vec![
-                        Field {
-                            name: "email".to_owned(),
+            },
+            responses: ResponsesModule {
+                list: vec![
+                    Component::Object {
+                        name: "RegisterConfirmationFailed".to_owned(),
+                        fields: vec![Field {
+                            name: "error".to_owned(),
                             required: true,
                             description: None,
-                            field_type: FieldType::Native(NativeType::String {
-                                format: FormatString::Email,
+                            field_type: FieldType::Custom("RegisterConfirmationFailedError".to_owned()),
+                        }],
+                        description: Some("Answer for registration confirmation".to_owned()),
+                    },
+                    Component::Enum {
+                        name: "RegisterConfirmationFailedError".to_owned(),
+                        variants: vec![
+                            EnumVariant {
+                                name: "code_invalid_or_expired".to_owned(),
+                                description: None,
+                            },
+                            EnumVariant {
+                                name: "email_already_activated".to_owned(),
+                                description: None,
+                            },
+                            EnumVariant {
+                                name: "invalid_form".to_owned(),
+                                description: None,
+                            },
+                        ],
+                        description: None,
+                    },
+                    Component::Object {
+                        name: "RegistrationRequestCreated".to_owned(),
+                        description: Some(
+                            "Registration link sent to email, now user can find out when the link expires".to_owned(),
+                        ),
+                        fields: vec![Field {
+                            name: "expiresAt".to_owned(),
+                            required: true,
+                            description: Some("UTC Unix TimeStamp when the link expires".to_owned()),
+                            field_type: FieldType::Native(NativeType::Integer {
+                                format: FormatInteger::Int64,
                             }),
-                        },
-                        Field {
-                            name: "demo".to_owned(),
-                            required: false,
-                            description: None,
-                            field_type: FieldType::Array(Box::new(FieldType::Array(Box::new(FieldType::Native(
-                                NativeType::String {
+                        }],
+                    },
+                ],
+            },
+            request_bodies: RequestBodiesModule {
+                list: vec![
+                    Component::Object {
+                        name: "Register".to_owned(),
+                        description: None,
+                        fields: vec![
+                            Field {
+                                name: "email".to_owned(),
+                                required: true,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::String {
                                     format: FormatString::Email,
-                                },
-                            ))))),
-                        },
-                    ],
-                },
-                Component::Object {
-                    name: "RegisterConfirmation".to_owned(),
-                    description: None,
-                    fields: vec![
-                        Field {
-                            name: "confirmationCode".to_owned(),
-                            required: true,
-                            description: None,
-                            field_type: FieldType::Native(NativeType::String {
-                                format: FormatString::default(),
-                            }),
-                        },
-                        Field {
-                            name: "firstName".to_owned(),
-                            required: true,
-                            description: None,
-                            field_type: FieldType::Native(NativeType::String {
-                                format: FormatString::default(),
-                            }),
-                        },
-                        Field {
-                            name: "lastName".to_owned(),
-                            required: true,
-                            description: None,
-                            field_type: FieldType::Native(NativeType::String {
-                                format: FormatString::default(),
-                            }),
-                        },
-                        Field {
-                            name: "password".to_owned(),
-                            required: true,
-                            description: None,
-                            field_type: FieldType::Native(NativeType::String {
-                                format: FormatString::default(),
-                            }),
-                        },
-                        Field {
-                            name: "demo".to_owned(),
-                            required: false,
-                            description: None,
-                            field_type: FieldType::Native(NativeType::Float {
-                                format: FormatFloat::default(),
-                            }),
-                        },
-                        Field {
-                            name: "customizer".to_owned(),
-                            required: false,
-                            description: None,
-                            field_type: FieldType::Internal("crate::app::MySuperType".to_owned()),
-                        },
-                    ],
-                },
-            ],
-        },
-    };
+                                }),
+                            },
+                            Field {
+                                name: "demo".to_owned(),
+                                required: false,
+                                description: None,
+                                field_type: FieldType::Array(Box::new(FieldType::Array(Box::new(FieldType::Native(
+                                    NativeType::String {
+                                        format: FormatString::Email,
+                                    },
+                                ))))),
+                            },
+                        ],
+                    },
+                    Component::Object {
+                        name: "RegisterConfirmation".to_owned(),
+                        description: None,
+                        fields: vec![
+                            Field {
+                                name: "confirmationCode".to_owned(),
+                                required: true,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::String {
+                                    format: FormatString::default(),
+                                }),
+                            },
+                            Field {
+                                name: "firstName".to_owned(),
+                                required: true,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::String {
+                                    format: FormatString::default(),
+                                }),
+                            },
+                            Field {
+                                name: "lastName".to_owned(),
+                                required: true,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::String {
+                                    format: FormatString::default(),
+                                }),
+                            },
+                            Field {
+                                name: "password".to_owned(),
+                                required: true,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::String {
+                                    format: FormatString::default(),
+                                }),
+                            },
+                            Field {
+                                name: "demo".to_owned(),
+                                required: false,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::Float {
+                                    format: FormatFloat::default(),
+                                }),
+                            },
+                            Field {
+                                name: "customizer".to_owned(),
+                                required: false,
+                                description: None,
+                                field_type: FieldType::Internal("crate::app::MySuperType".to_owned()),
+                            },
+                        ],
+                    },
+                ],
+            },
+        };
 
     let p1 = Path {
         name: "registerConfirmation".to_owned(),

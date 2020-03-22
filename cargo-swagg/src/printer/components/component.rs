@@ -13,6 +13,11 @@ pub enum Component {
         description: Option<String>,
         variants: Vec<EnumVariant>,
     },
+    Type {
+        name: String,
+        description: Option<String>,
+        type_value: FieldType,
+    },
 }
 
 impl Component {
@@ -20,6 +25,7 @@ impl Component {
         match self {
             Component::Object { description, .. } => description.clone(),
             Component::Enum { description, .. } => description.clone(),
+            Component::Type { description, .. } => description.clone(),
         }
     }
 
@@ -27,6 +33,7 @@ impl Component {
         match self {
             Component::Object { name, .. } => name.clone(),
             Component::Enum { name, .. } => name.clone(),
+            Component::Type { name, .. } => name.clone(),
         }
     }
 }
@@ -62,6 +69,14 @@ impl Printable for Component {
                     pub enum #name_ident {
                         #variants_stream
                     }
+                }
+            }
+            Component::Type { type_value, .. } => {
+                let type_stream = type_value.print();
+
+                quote! {
+                    #description
+                    pub type #name_ident = #type_stream;
                 }
             }
         }
