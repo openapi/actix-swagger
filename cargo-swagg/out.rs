@@ -175,5 +175,16 @@ pub mod paths {
                 Answer::new(self).status(status).content_type(content_type)
             }
         }
+        use super::components::parameters;
+        #[derive(Debug, Deserialize)]
+        pub struct QueryParams {
+            #[doc = "response_type is set to code indicating that you want an authorization code as the response."]
+            #[serde(rename = "responseType")]
+            pub response_type: parameters::OauthResponseType,
+            pub redirect_uri: Option<parameters::OauthRedirectUri>,
+            #[serde(rename = "GlobalNameOfTheUniverse")]
+            pub global_name_of_the_universe: Option<parameters::OauthClientId>,
+        }
+        pub type Query = actix_web::http::Query<QueryParams>;
     }
 }

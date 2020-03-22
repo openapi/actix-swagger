@@ -6,6 +6,7 @@ use quote::{format_ident, quote};
 pub struct Path {
     pub name: String,
     pub response: ResponseEnum,
+    pub query_params: Vec<QueryParam>,
 }
 
 impl Path {
@@ -36,6 +37,25 @@ impl Path {
             }
         }
     }
+
+    fn query_params_impl(&self) -> proc_macro2::TokenStream {
+        if self.query_params.is_empty() {
+            quote! {}
+        } else {
+            let query_params = self.query_params.print();
+
+            quote! {
+                use super::components::parameters;
+
+                #[derive(Debug, Deserialize)]
+                pub struct QueryParams {
+                    #query_params
+                }
+
+                pub type Query = actix_web::http::Query<QueryParams>;
+            }
+        }
+    }
 }
 
 impl Printable for Path {
@@ -44,6 +64,7 @@ impl Printable for Path {
         let enum_variants = self.print_enum_variants();
         let status_match = self.print_status_variants();
         let content_type_match = self.print_content_type_variants();
+        let query_params = self.query_params_impl();
 
         quote! {
             pub mod #module_name {
@@ -67,6 +88,8 @@ impl Printable for Path {
                         Answer::new(self).status(status).content_type(content_type)
                     }
                 }
+
+                #query_params
             }
         }
 
@@ -183,5 +206,47 @@ impl Printable for ContentType {
         let ident = format_ident!("{}", self.to_string());
 
         quote! { #ident }
+    }
+}
+
+pub struct QueryParam {
+    /// Name of the parameter in the query, can be in any case, will be converted to snake_case
+    pub name: String,
+
+    /// should be reference to type in `components::parameters` module
+    /// Will be converted to PascalCase
+    pub type_ref: String,
+
+    pub description: Option<String>,
+
+    pub required: bool,
+}
+
+impl Printable for QueryParam {
+    fn print(&self) -> proc_macro2::TokenStream {
+        let name_original = self.name.clone();
+        let name_snake = name_original.to_snake_case();
+        let name_ident = format_ident!("{}", name_snake);
+        let rename = match name_snake != name_original {
+            true => quote! { #[serde(rename = #name_original)] },
+            false => quote! {},
+        };
+
+        let type_name = format_ident!("{}", self.type_ref.to_pascal_case());
+        let description = match &self.description {
+            Some(description) => quote! { #[doc = #description]},
+            None => quote! {},
+        };
+
+        let type_result = match self.required {
+            true => quote! { parameters::#type_name },
+            false => quote! { Option<parameters::#type_name> },
+        };
+
+        quote! {
+            #description
+            #rename
+            pub #name_ident: #type_result,
+        }
     }
 }

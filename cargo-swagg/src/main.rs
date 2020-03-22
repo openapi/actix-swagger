@@ -9,7 +9,7 @@ use printer::{
         parameters::ParametersModule, request_bodies::RequestBodiesModule, responses::ResponsesModule, Component,
         ComponentsModule, EnumVariant, Field, FieldType, FormatFloat, FormatInteger, FormatString, NativeType,
     },
-    paths::{ContentType, Path, PathsModule, ResponseEnum, ResponseStatus, StatusVariant},
+    paths::{ContentType, Path, PathsModule, QueryParam, ResponseEnum, ResponseStatus, StatusVariant},
     GeneratedModule, Printable,
 };
 
@@ -209,6 +209,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
 
     let p1 = Path {
         name: "registerConfirmation".to_owned(),
+        query_params: vec![],
         response: ResponseEnum {
             responses: vec![
                 StatusVariant {
@@ -238,6 +239,29 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
 
     let p2 = Path {
         name: "sessionCreate".to_owned(),
+        query_params: vec![
+            QueryParam {
+                name: "responseType".to_owned(),
+                type_ref: "OAuthResponseType".to_owned(),
+                description: Some(
+                    "response_type is set to code indicating that you want an authorization code as the response."
+                        .to_owned(),
+                ),
+                required: true,
+            },
+            QueryParam {
+                name: "redirect_uri".to_owned(),
+                type_ref: "OAuthRedirectUri".to_owned(),
+                description: None,
+                required: false,
+            },
+            QueryParam {
+                name: "GlobalNameOfTheUniverse".to_owned(),
+                type_ref: "OAuthClientId".to_owned(),
+                description: None,
+                required: false,
+            },
+        ],
         response: ResponseEnum {
             responses: vec![
                 StatusVariant {
