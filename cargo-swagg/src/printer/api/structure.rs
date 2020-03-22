@@ -79,3 +79,142 @@ impl Printable for ApiStruct {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test::shot;
+    use insta::assert_yaml_snapshot;
+
+    #[test]
+    fn empty_struct() {
+        assert_yaml_snapshot!(shot(ApiStruct::new("example".to_owned())), @r###"
+        ---
+        - "#[doc = \"\"]"
+        - "pub struct Example {"
+        - "    api: actix_swagger::Api,"
+        - "}"
+        - "impl Example {"
+        - "    pub fn new() -> Self {"
+        - "        Self {"
+        - "            api: actix_swagger::Api::new(),"
+        - "        }"
+        - "    }"
+        - "}"
+        - "impl Default for Example {"
+        - "    fn default() -> Self {"
+        - "        let api = Self::new();"
+        - "        api"
+        - "    }"
+        - "}"
+        - "impl actix_web::dev::HttpServiceFactory for Example {"
+        - "    fn register(mut self, config: &mut actix_web::dev::AppService) {"
+        - "        self.api.register(config);"
+        - "    }"
+        - "}"
+        - ""
+        "###);
+    }
+
+    #[test]
+    fn with_terms() {
+        assert_yaml_snapshot!(shot(ApiStruct {
+            api_name: "test_api".to_owned(),
+            description: None,
+            terms_of_service: Some("https://example.com/terms".to_owned())
+        }), @r###"
+        ---
+        - "#[doc = \"@see https://example.com/terms\"]"
+        - "pub struct TestApi {"
+        - "    api: actix_swagger::Api,"
+        - "}"
+        - "impl TestApi {"
+        - "    pub fn new() -> Self {"
+        - "        Self {"
+        - "            api: actix_swagger::Api::new(),"
+        - "        }"
+        - "    }"
+        - "}"
+        - "impl Default for TestApi {"
+        - "    fn default() -> Self {"
+        - "        let api = Self::new();"
+        - "        api"
+        - "    }"
+        - "}"
+        - "impl actix_web::dev::HttpServiceFactory for TestApi {"
+        - "    fn register(mut self, config: &mut actix_web::dev::AppService) {"
+        - "        self.api.register(config);"
+        - "    }"
+        - "}"
+        - ""
+        "###);
+    }
+
+    #[test]
+    fn with_description() {
+        assert_yaml_snapshot!(shot(ApiStruct {
+            api_name: "test_api".to_owned(),
+            description: Some("My super simple description.\nAnother back".to_owned()),
+            terms_of_service: None,
+        }), @r###"
+        ---
+        - "#[doc = \"My super simple description.\\nAnother back\"]"
+        - "pub struct TestApi {"
+        - "    api: actix_swagger::Api,"
+        - "}"
+        - "impl TestApi {"
+        - "    pub fn new() -> Self {"
+        - "        Self {"
+        - "            api: actix_swagger::Api::new(),"
+        - "        }"
+        - "    }"
+        - "}"
+        - "impl Default for TestApi {"
+        - "    fn default() -> Self {"
+        - "        let api = Self::new();"
+        - "        api"
+        - "    }"
+        - "}"
+        - "impl actix_web::dev::HttpServiceFactory for TestApi {"
+        - "    fn register(mut self, config: &mut actix_web::dev::AppService) {"
+        - "        self.api.register(config);"
+        - "    }"
+        - "}"
+        - ""
+        "###);
+    }
+
+    #[test]
+    fn with_description_and_terms() {
+        assert_yaml_snapshot!(shot(ApiStruct {
+            api_name: "test_api".to_owned(),
+            description: Some("My super simple description.\nAnother back".to_owned()),
+            terms_of_service: Some("https://example.com/terms".to_owned()),
+        }), @r###"
+        ---
+        - "#[doc = \"My super simple description.\\nAnother back\\n@see https://example.com/terms\"]"
+        - "pub struct TestApi {"
+        - "    api: actix_swagger::Api,"
+        - "}"
+        - "impl TestApi {"
+        - "    pub fn new() -> Self {"
+        - "        Self {"
+        - "            api: actix_swagger::Api::new(),"
+        - "        }"
+        - "    }"
+        - "}"
+        - "impl Default for TestApi {"
+        - "    fn default() -> Self {"
+        - "        let api = Self::new();"
+        - "        api"
+        - "    }"
+        - "}"
+        - "impl actix_web::dev::HttpServiceFactory for TestApi {"
+        - "    fn register(mut self, config: &mut actix_web::dev::AppService) {"
+        - "        self.api.register(config);"
+        - "    }"
+        - "}"
+        - ""
+        "###);
+    }
+}
