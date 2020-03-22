@@ -33,5 +33,5 @@ pub fn shot<T: crate::printer::Printable>(input: T) -> Vec<String> {
     drop(file);
     dir.close().expect("Failed to close directory");
 
-    result.split("\n").map(|x| x.to_owned()).collect()
+    result.split("\n").map(|x| format!("  {: <120}", x)).collect()
 }
