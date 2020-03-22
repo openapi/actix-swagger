@@ -28,6 +28,17 @@ pub struct GeneratedModule {
     pub paths_module: paths::module::PathsModule,
 }
 
+impl GeneratedModule {
+    pub fn set_name(&mut self, name: String) {
+        self.api_module.api.api_name = name.clone();
+        self.api_module.methods.api_name = name;
+    }
+
+    pub fn set_description(&mut self, description: String) {
+        self.api_module.api.description = Some(description);
+    }
+}
+
 impl Printable for GeneratedModule {
     fn print(&self) -> proc_macro2::TokenStream {
         let api_module = self.api_module.print();
@@ -358,7 +369,7 @@ mod tests {
                 }
             }
             impl actix_web::dev::HttpServiceFactory for ExampleApiDef {
-                fn register(mut self, config: &mut actix_web::dev::AppService) {
+                fn register(self, config: &mut actix_web::dev::AppService) {
                     self.api.register(config);
                 }
             }

@@ -86,7 +86,7 @@ impl Printable for ApiStruct {
             }
 
             impl actix_web::dev::HttpServiceFactory for #api_name {
-                fn register(mut self, config: &mut actix_web::dev::AppService) {
+                fn register(self, config: &mut actix_web::dev::AppService) {
                     self.api.register(config);
                 }
             }
@@ -120,7 +120,7 @@ mod tests {
             }
         }
         impl actix_web::dev::HttpServiceFactory for Api {
-            fn register(mut self, config: &mut actix_web::dev::AppService) {
+            fn register(self, config: &mut actix_web::dev::AppService) {
                 self.api.register(config);
             }
         }
@@ -147,7 +147,7 @@ mod tests {
             }
         }
         impl actix_web::dev::HttpServiceFactory for Example {
-            fn register(mut self, config: &mut actix_web::dev::AppService) {
+            fn register(self, config: &mut actix_web::dev::AppService) {
                 self.api.register(config);
             }
         }
@@ -179,7 +179,7 @@ mod tests {
             }
         }
         impl actix_web::dev::HttpServiceFactory for TestApi {
-            fn register(mut self, config: &mut actix_web::dev::AppService) {
+            fn register(self, config: &mut actix_web::dev::AppService) {
                 self.api.register(config);
             }
         }
@@ -211,7 +211,7 @@ mod tests {
             }
         }
         impl actix_web::dev::HttpServiceFactory for TestApi {
-            fn register(mut self, config: &mut actix_web::dev::AppService) {
+            fn register(self, config: &mut actix_web::dev::AppService) {
                 self.api.register(config);
             }
         }
@@ -243,7 +243,7 @@ mod tests {
             }
         }
         impl actix_web::dev::HttpServiceFactory for TestApi {
-            fn register(mut self, config: &mut actix_web::dev::AppService) {
+            fn register(self, config: &mut actix_web::dev::AppService) {
                 self.api.register(config);
             }
         }
