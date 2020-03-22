@@ -32,7 +32,7 @@ pub mod api {
             T: FromRequest + 'static,
             R: Future<Output = Answer<'static, paths::session_get::Response>> + 'static,
         {
-            self.api = self.api.bind("/session".to_owned(), GET, handler);
+            self.api = self.api.bind("/session".to_owned(), Method::GET, handler);
             self
         }
         #[doc = "Request body - super::requst_bodies::SessionCreateBody"]
@@ -42,7 +42,7 @@ pub mod api {
             T: FromRequest + 'static,
             R: Future<Output = Answer<'static, paths::session_create::Response>> + 'static,
         {
-            self.api = self.api.bind("/session".to_owned(), POST, handler);
+            self.api = self.api.bind("/session".to_owned(), Method::POST, handler);
             self
         }
         #[doc = "Request body - super::requst_bodies::RegisterConfirmation"]
@@ -52,7 +52,9 @@ pub mod api {
             T: FromRequest + 'static,
             R: Future<Output = Answer<'static, paths::register_confirmation::Response>> + 'static,
         {
-            self.api = self.api.bind("/register/confirmation".to_owned(), POST, handler);
+            self.api = self
+                .api
+                .bind("/register/confirmation".to_owned(), Method::POST, handler);
             self
         }
     }

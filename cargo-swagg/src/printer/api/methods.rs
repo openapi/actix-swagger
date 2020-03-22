@@ -54,7 +54,7 @@ impl Printable for BindApiMethod {
                 T: FromRequest + 'static,
                 R: Future<Output = Answer<'static, paths::#path_name::Response>> + 'static,
             {
-                self.api = self.api.bind(#request_path.to_owned(), #http_method, handler);
+                self.api = self.api.bind(#request_path.to_owned(), Method::#http_method, handler);
                 self
             }
         }
