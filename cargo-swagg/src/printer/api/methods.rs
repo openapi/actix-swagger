@@ -64,10 +64,18 @@ impl Printable for BindApiMethod {
     }
 }
 
-#[derive(Default)]
 pub struct ImplApi {
     pub api_name: String,
     pub methods: Vec<BindApiMethod>,
+}
+
+impl Default for ImplApi {
+    fn default() -> Self {
+        Self {
+            api_name: "Api".to_owned(),
+            methods: vec![],
+        }
+    }
 }
 
 impl Printable for ImplApi {
@@ -99,6 +107,19 @@ mod tests {
             api_name: "test_api".to_owned(),
             methods,
         }
+    }
+
+    #[test]
+    fn default_api() {
+        assert_yaml_snapshot!(shot(ImplApi::default()), @r###"
+        ---
+        - "use super::paths;"
+        - "use actix_swagger::{Answer, Method};"
+        - "use actix_web::{dev::Factory, FromRequest};"
+        - "use std::future::Future;"
+        - "impl Api {}"
+        - ""
+        "###);
     }
 
     #[test]

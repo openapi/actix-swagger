@@ -11,11 +11,20 @@ pub fn to_struct_name(string: String) -> String {
 }
 
 /// Object describing main api structure and useful impls
-#[derive(Default)]
 pub struct ApiStruct {
-    pub(crate) api_name: String,
-    pub(crate) terms_of_service: Option<String>,
-    pub(crate) description: Option<String>,
+    pub api_name: String,
+    pub terms_of_service: Option<String>,
+    pub description: Option<String>,
+}
+
+impl Default for ApiStruct {
+    fn default() -> Self {
+        Self {
+            api_name: "Api".to_owned(),
+            terms_of_service: None,
+            description: None,
+        }
+    }
 }
 
 impl ApiStruct {
@@ -90,6 +99,35 @@ mod tests {
     use super::*;
     use crate::test::shot;
     use insta::assert_yaml_snapshot;
+
+    #[test]
+    fn default_struct() {
+        assert_yaml_snapshot!(shot(ApiStruct::default()), @r###"
+        ---
+        - "pub struct Api {"
+        - "    api: actix_swagger::Api,"
+        - "}"
+        - "impl Api {"
+        - "    pub fn new() -> Self {"
+        - "        Self {"
+        - "            api: actix_swagger::Api::new(),"
+        - "        }"
+        - "    }"
+        - "}"
+        - "impl Default for Api {"
+        - "    fn default() -> Self {"
+        - "        let api = Self::new();"
+        - "        api"
+        - "    }"
+        - "}"
+        - "impl actix_web::dev::HttpServiceFactory for Api {"
+        - "    fn register(mut self, config: &mut actix_web::dev::AppService) {"
+        - "        self.api.register(config);"
+        - "    }"
+        - "}"
+        - ""
+        "###);
+    }
 
     #[test]
     fn without_description_and_terms() {
