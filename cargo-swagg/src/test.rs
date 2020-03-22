@@ -33,5 +33,5 @@ pub fn shot<T: crate::printer::Printable>(input: T) -> String {
     drop(file);
     dir.close().expect("Failed to close directory");
 
-    result
+    result.trim().to_owned()
 }

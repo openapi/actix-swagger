@@ -299,3 +299,268 @@ impl Printable for FormatFloat {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test::shot;
+    use insta::assert_snapshot;
+
+    struct TestType<T>(T);
+
+    impl<T: crate::printer::Printable> crate::printer::Printable for TestType<T> {
+        fn print(&self) -> proc_macro2::TokenStream {
+            let t = self.0.print();
+            quote::quote! {
+                type Test = #t;
+            }
+        }
+    }
+
+    #[test]
+    fn format_float() {
+        assert_snapshot!(shot(TestType(FormatFloat::default())), @r"type Test = f32;");
+        assert_snapshot!(shot(TestType(FormatFloat::Float)), @r"type Test = f32;");
+        assert_snapshot!(shot(TestType(FormatFloat::Double)), @r"type Test = f64;");
+    }
+
+    #[test]
+    fn format_integer() {
+        assert_snapshot!(shot(TestType(FormatInteger::default())), @r###"type Test = i32;"###);
+        assert_snapshot!(shot(TestType(FormatInteger::Int32)), @r###"type Test = i32;"###);
+        assert_snapshot!(shot(TestType(FormatInteger::Int64)), @r###"type Test = i64;"###);
+    }
+
+    #[test]
+    fn format_string() {
+        assert_snapshot!(shot(TestType(FormatString::default())), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::None)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Binary)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Byte)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Date)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::DateTime)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Email)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Hostname)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Ipv4)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Ipv6)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Password)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Url)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Uuid)), @"type Test = String;
+");
+        assert_snapshot!(shot(TestType(FormatString::Pattern(regex::Regex::new(".*").unwrap()))), @"type Test = String;
+");
+    }
+
+    #[test]
+    fn native_type_string() {
+        assert_snapshot!(shot(TestType(NativeType::String { format: Default::default() })), @"type Test = String;
+");
+    }
+
+    #[test]
+    fn native_type_float() {
+        assert_snapshot!(shot(TestType(NativeType::Float { format: Default::default() })), @"type Test = f32;
+");
+    }
+
+    #[test]
+    fn native_type_integer() {
+        assert_snapshot!(shot(TestType(NativeType::Integer { format: Default::default() })), @"type Test = i32;
+");
+    }
+
+    #[test]
+    fn native_type_boolean() {
+        assert_snapshot!(shot(TestType(NativeType::Boolean)), @"type Test = bool;
+");
+    }
+
+    #[test]
+    fn convert_path_to_stream() {
+        assert_snapshot!(path_to_stream("crate::app::Type".to_owned()).to_string(), @"crate :: app :: Type");
+        assert_snapshot!(path_to_stream("Type".to_owned()).to_string(), @"Type");
+        assert_snapshot!(path_to_stream("super::super::app::Type".to_owned()).to_string(), @"super :: super :: app :: Type");
+    }
+
+    #[test]
+    fn field_type_native() {
+        assert_snapshot!(shot(TestType(FieldType::Native(NativeType::Boolean))), @r"type Test = bool;");
+        assert_snapshot!(shot(TestType(FieldType::Native(NativeType::Float { format: FormatFloat::Double }))), @r"type Test = f64;");
+        assert_snapshot!(shot(TestType(FieldType::Native(NativeType::String { format: FormatString::Email }))), @r"type Test = String;");
+    }
+
+    #[test]
+    fn field_type_custom() {
+        assert_snapshot!(shot(TestType(FieldType::Custom("MySuperType".to_owned()))), @r"type Test = MySuperType;");
+        assert_snapshot!(shot(TestType(FieldType::Custom("i32".to_owned()))), @r"type Test = i32;");
+    }
+
+    #[test]
+    #[should_panic]
+    fn field_type_custom_disallow_path() {
+        assert_snapshot!(shot(TestType(FieldType::Custom("some::Example".to_owned()))), @r"");
+    }
+
+    #[test]
+    fn field_type_internal_allow_path() {
+        assert_snapshot!(shot(TestType(FieldType::Internal("some::Example".to_owned()))), @r"type Test = some::Example;");
+    }
+
+    #[test]
+    fn field_type_array() {
+        assert_snapshot!(shot(TestType(FieldType::Array(Box::new(FieldType::Native(NativeType::Boolean))))), @r"type Test = Vec<bool>;");
+        assert_snapshot!(shot(TestType(FieldType::Array(Box::new(FieldType::Array(Box::new(FieldType::Native(NativeType::Boolean))))))), @r"type Test = Vec<Vec<bool>>;");
+        assert_snapshot!(shot(TestType(FieldType::Array(Box::new(FieldType::Array(Box::new(FieldType::Custom("Super".to_owned()))))))), @r"type Test = Vec<Vec<Super>>;");
+        assert_snapshot!(shot(TestType(FieldType::Array(Box::new(FieldType::Array(Box::new(FieldType::Internal("crate::Super".to_owned()))))))), @r"type Test = Vec<Vec<crate::Super>>;");
+    }
+
+    #[test]
+    fn component_type() {
+        assert_snapshot!(shot(Component::Type {
+            name: "snake_case_name".to_owned(),
+            description: None,
+            type_value: FieldType::Internal("super::another::Type".to_owned()),
+        }), @"pub type SnakeCaseName = super::another::Type;");
+
+        assert_snapshot!(shot(Component::Type {
+            name: "UPPER_CASE_NAME".to_owned(),
+            description: Some("Example description for test type export".to_owned()),
+            type_value: FieldType::Internal("super::another::Type".to_owned()),
+        }), @r###"
+        #[doc = "Example description for test type export"]
+        pub type UpperCaseName = super::another::Type;
+        "###);
+    }
+
+    #[test]
+    fn component_object() {
+        assert_snapshot!(shot(Component::Object {
+            name: "snake_case_name".to_owned(),
+            description: None,
+            fields: vec![],
+        }), @r###"
+        #[derive(Debug, Serialize, Deserialize)]
+        pub struct SnakeCaseName {}
+        "###);
+
+        assert_snapshot!(shot(Component::Object {
+            name: "UPPER_CASE_NAME".to_owned(),
+            description: Some("My super long description.\nOr not".to_owned()),
+            fields: vec![],
+        }), @r###"
+        #[doc = "My super long description.\nOr not"]
+        #[derive(Debug, Serialize, Deserialize)]
+        pub struct UpperCaseName {}
+        "###);
+
+        assert_snapshot!(shot(Component::Object {
+            name: "THIS-IS-FIELDS".to_owned(),
+            description: None,
+            fields: vec![Field {
+                name: "UPPER_CASE_FIELD".to_owned(),
+                description: Some("Description".to_owned()),
+                required: true,
+                field_type: FieldType::Native(NativeType::String { format: Default::default() })
+            },
+            Field {
+                name: "snake_case_field".to_owned(),
+                description: None,
+                required: true,
+                field_type: FieldType::Native(NativeType::Integer { format: FormatInteger::Int64 })
+            },
+            Field {
+                name: "superCase".to_owned(),
+                description: None,
+                required: false,
+                field_type: FieldType::Internal("super::super::app::Type".to_owned()),
+            },
+            Field {
+                name: "JustAnother".to_owned(),
+                description: Some("".to_owned()),
+                required: false,
+                field_type: FieldType::Array(Box::new(FieldType::Internal("i128".to_owned())))
+            }],
+        }), @r###"
+        #[derive(Debug, Serialize, Deserialize)]
+        pub struct ThisIsFields {
+            #[doc = "Description"]
+            #[serde(rename = "UPPER_CASE_FIELD")]
+            pub upper_case_field: String,
+            pub snake_case_field: i64,
+            #[serde(rename = "superCase")]
+            pub super_case: Option<super::super::app::Type>,
+            #[doc = ""]
+            #[serde(rename = "JustAnother")]
+            pub just_another: Option<Vec<i128>>,
+        }
+        "###);
+    }
+
+    #[test]
+    fn component_enum() {
+        assert_snapshot!(shot(Component::Enum {
+            name: "snake_case_name".to_owned(),
+            description: None,
+            variants: vec![],
+        }), @r###"
+        #[derive(Debug, Serialize, Deserialize)]
+        pub enum SnakeCaseName {}
+        "###);
+
+        assert_snapshot!(shot(Component::Enum {
+            name: "UPPER_CASE_NAME".to_owned(),
+            description: Some("My super long description.\nOr not".to_owned()),
+            variants: vec![],
+        }), @r###"
+        #[doc = "My super long description.\nOr not"]
+        #[derive(Debug, Serialize, Deserialize)]
+        pub enum UpperCaseName {}
+        "###);
+
+        assert_snapshot!(shot(Component::Enum {
+            name: "THIS-IS-FIELDS".to_owned(),
+            description: None,
+            variants: vec![EnumVariant {
+                name: "UPPER_CASE_FIELD".to_owned(),
+                description: Some("Description".to_owned()),
+            },
+            EnumVariant {
+                name: "snake_case_field".to_owned(),
+                description: None,
+            },
+            EnumVariant {
+                name: "superCase".to_owned(),
+                description: None,
+            },
+            EnumVariant {
+                name: "JustAnother".to_owned(),
+                description: Some("".to_owned()),
+            }],
+        }), @r###"
+        #[derive(Debug, Serialize, Deserialize)]
+        pub enum ThisIsFields {
+            #[doc = "Description"]
+            #[serde(rename = "UPPER_CASE_FIELD")]
+            UpperCaseField,
+            #[serde(rename = "snake_case_field")]
+            SnakeCaseField,
+            #[serde(rename = "superCase")]
+            SuperCase,
+            #[doc = ""]
+            JustAnother,
+        }
+        "###);
+    }
+}
