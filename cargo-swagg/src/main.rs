@@ -13,6 +13,9 @@ use printer::{
     GeneratedModule, Printable,
 };
 
+#[cfg(test)]
+pub mod test;
+
 fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     let file_path = "/Users/sergeysova/Projects/authmenow/backend/public-api.openapi.yaml";
     let content = fs::read_to_string(&file_path)?;
