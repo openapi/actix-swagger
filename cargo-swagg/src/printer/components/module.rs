@@ -26,3 +26,27 @@ impl Printable for ComponentsModule {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test::shot;
+    use insta::assert_snapshot;
+
+    #[test]
+    fn components_module_default() {
+        assert_snapshot!(shot(ComponentsModule::default()), @r###"
+        pub mod components {
+            pub mod parameters {
+                use serde::{Deserialize, Serialize};
+            }
+            pub mod request_bodies {
+                use serde::{Deserialize, Serialize};
+            }
+            pub mod responses {
+                use serde::{Deserialize, Serialize};
+            }
+        }
+        "###);
+    }
+}
