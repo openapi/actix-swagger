@@ -50,8 +50,13 @@ impl Printable for ApiStruct {
         let doc_comment = format!("{}\n{}", description, terms);
         let doc = doc_comment.trim();
 
+        let doc_stream = match doc.len() > 0 {
+            true => quote! { #[doc = #doc] },
+            false => quote! {},
+        };
+
         quote! {
-            #[doc = #doc]
+            #doc_stream
             pub struct #api_name {
                 api: actix_swagger::Api,
             }
@@ -87,10 +92,9 @@ mod tests {
     use insta::assert_yaml_snapshot;
 
     #[test]
-    fn empty_struct() {
+    fn without_description_and_terms() {
         assert_yaml_snapshot!(shot(ApiStruct::new("example".to_owned())), @r###"
         ---
-        - "#[doc = \"\"]"
         - "pub struct Example {"
         - "    api: actix_swagger::Api,"
         - "}"
