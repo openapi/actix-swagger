@@ -45,7 +45,7 @@ impl Path {
             let query_params = self.query_params.print();
 
             quote! {
-                use super::components::parameters;
+                use super::super::components::parameters;
 
                 #[derive(Debug, Deserialize)]
                 pub struct QueryParams {
@@ -68,10 +68,9 @@ impl Printable for Path {
 
         quote! {
             pub mod #module_name {
-                use super::components::responses;
-                use actix_swagger::{Answer, ContentType};
-                use actix_web::http::StatusCode;
-                use serde::Serialize;
+                use super::super::components::responses;
+                use actix_swagger::{Answer, ContentType, StatusCode};
+                use serde::{Serialize, Deserialize};
 
                 #[derive(Debug, Serialize)]
                 #[serde(untagged)]
@@ -152,7 +151,7 @@ impl StatusVariant {
         let variant_name = self.name();
 
         if let Some(response) = self.response_type_name.clone() {
-            let response_name = format_ident!("{}", response);
+            let response_name = format_ident!("{}", response.to_pascal_case());
 
             quote! {
                 #description

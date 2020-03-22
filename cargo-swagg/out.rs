@@ -120,10 +120,9 @@ pub mod components {
 }
 pub mod paths {
     pub mod register_confirmation {
-        use super::components::responses;
-        use actix_swagger::{Answer, ContentType};
-        use actix_web::http::StatusCode;
-        use serde::Serialize;
+        use super::super::components::responses;
+        use actix_swagger::{Answer, ContentType, StatusCode};
+        use serde::{Deserialize, Serialize};
         #[derive(Debug, Serialize)]
         #[serde(untagged)]
         pub enum Response {
@@ -149,16 +148,15 @@ pub mod paths {
         }
     }
     pub mod session_create {
-        use super::components::responses;
-        use actix_swagger::{Answer, ContentType};
-        use actix_web::http::StatusCode;
-        use serde::Serialize;
+        use super::super::components::responses;
+        use actix_swagger::{Answer, ContentType, StatusCode};
+        use serde::{Deserialize, Serialize};
         #[derive(Debug, Serialize)]
         #[serde(untagged)]
         pub enum Response {
             #[doc = "User logined, cookies writed\nFoo"]
             Created,
-            BadRequest(responses::sessionCreateFailed),
+            BadRequest(responses::SessionCreateFailed),
             Unexpected,
         }
         impl Response {
@@ -177,7 +175,7 @@ pub mod paths {
                 Answer::new(self).status(status).content_type(content_type)
             }
         }
-        use super::components::parameters;
+        use super::super::components::parameters;
         #[derive(Debug, Deserialize)]
         pub struct QueryParams {
             #[doc = "response_type is set to code indicating that you want an authorization code as the response."]
