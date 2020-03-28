@@ -249,3 +249,203 @@ impl Printable for QueryParam {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test::shot;
+    use insta::assert_snapshot;
+
+    #[test]
+    fn path_empty() {
+        assert_snapshot!(shot(Path {
+            name: "Example".to_owned(),
+            response: ResponseEnum {
+                responses: vec![]
+            },
+            query_params: vec![]
+        }), @r###"
+        pub mod example {
+            use super::super::components::responses;
+            use actix_swagger::{Answer, ContentType, StatusCode};
+            use serde::{Deserialize, Serialize};
+            #[derive(Debug, Serialize)]
+            #[serde(untagged)]
+            pub enum Response {}
+            impl Response {
+                #[inline]
+                pub fn to_answer(self) -> Answer<'static, Self> {
+                    let status = match self {};
+                    let content_type = match self {};
+                    Answer::new(self).status(status).content_type(content_type)
+                }
+            }
+        }
+        "###);
+    }
+
+    #[test]
+    fn path_with_responses() {
+        assert_snapshot!(shot(Path {
+            name: "Example".to_owned(),
+            response: ResponseEnum {
+                responses: vec![
+                    StatusVariant {
+                        status: ResponseStatus::Ok,
+                        content_type: None,
+                        response_type_name: None,
+                        description: None,
+                        x_variant_name: None,
+                    },
+                    StatusVariant {
+                        status: ResponseStatus::Created,
+                        content_type: Some(ContentType::Json),
+                        response_type_name: None,
+                        description: None,
+                        x_variant_name: None,
+                    },
+                    StatusVariant {
+                        status: ResponseStatus::Accepted,
+                        content_type: Some(ContentType::Json),
+                        response_type_name: Some("unexpected_FRIEND_Name".to_owned()),
+                        description: None,
+                        x_variant_name: None,
+                    },
+                    StatusVariant {
+                        status: ResponseStatus::BadRequest,
+                        content_type: Some(ContentType::Json),
+                        response_type_name: Some("unexpected_FRIEND_Name".to_owned()),
+                        description: Some("My super simple description.\nAnother back".to_owned()),
+                        x_variant_name: None,
+                    },
+                    StatusVariant {
+                        status: ResponseStatus::InternalServerError,
+                        content_type: Some(ContentType::Json),
+                        response_type_name: Some("unexpected_FRIEND_Name".to_owned()),
+                        description: Some("My super simple description.\nAnother back".to_owned()),
+                        x_variant_name: Some("Unexpected".to_owned()),
+                    },
+                    StatusVariant {
+                        status: ResponseStatus::ExpectationFailed,
+                        content_type: None,
+                        response_type_name: Some("unexpected_FRIEND_Name".to_owned()),
+                        description: Some("My super simple description.\nAnother back".to_owned()),
+                        x_variant_name: Some("Expectation".to_owned()),
+                    },
+                    StatusVariant {
+                        status: ResponseStatus::NotFound,
+                        content_type: None,
+                        response_type_name: None,
+                        description: Some("My super simple description.\nAnother back".to_owned()),
+                        x_variant_name: Some("No".to_owned()),
+                    },
+                ]
+            },
+            query_params: vec![]
+        }), @r###"
+        pub mod example {
+            use super::super::components::responses;
+            use actix_swagger::{Answer, ContentType, StatusCode};
+            use serde::{Deserialize, Serialize};
+            #[derive(Debug, Serialize)]
+            #[serde(untagged)]
+            pub enum Response {
+                Ok,
+                Created,
+                Accepted(responses::UnexpectedFriendName),
+                #[doc = "My super simple description.\nAnother back"]
+                BadRequest(responses::UnexpectedFriendName),
+                #[doc = "My super simple description.\nAnother back"]
+                Unexpected(responses::UnexpectedFriendName),
+                #[doc = "My super simple description.\nAnother back"]
+                Expectation(responses::UnexpectedFriendName),
+                #[doc = "My super simple description.\nAnother back"]
+                No,
+            }
+            impl Response {
+                #[inline]
+                pub fn to_answer(self) -> Answer<'static, Self> {
+                    let status = match self {
+                        Self::Ok => StatusCode::OK,
+                        Self::Created => StatusCode::CREATED,
+                        Self::Accepted(_) => StatusCode::ACCEPTED,
+                        Self::BadRequest(_) => StatusCode::BAD_REQUEST,
+                        Self::Unexpected(_) => StatusCode::INTERNAL_SERVER_ERROR,
+                        Self::Expectation(_) => StatusCode::EXPECTATION_FAILED,
+                        Self::No => StatusCode::NOT_FOUND,
+                    };
+                    let content_type = match self {
+                        Self::Ok => None,
+                        Self::Created => Some(ContentType::Json),
+                        Self::Accepted(_) => Some(ContentType::Json),
+                        Self::BadRequest(_) => Some(ContentType::Json),
+                        Self::Unexpected(_) => Some(ContentType::Json),
+                        Self::Expectation(_) => None,
+                        Self::No => None,
+                    };
+                    Answer::new(self).status(status).content_type(content_type)
+                }
+            }
+        }
+        "###);
+    }
+
+    #[test]
+    fn path_with_query_params() {
+        assert_snapshot!(shot(Path {
+            name: "Example".to_owned(),
+            response: ResponseEnum {
+                responses: vec![]
+            },
+            query_params: vec![
+                QueryParam {
+                    name: "simple_LONG_DescriptionFor-Me".to_owned(),
+                    description: None,
+                    required: false,
+                    type_ref: "simple_LONG_DescriptionFor-Me".to_owned()
+                },
+                QueryParam {
+                    name: "ARE_YOU_SURE".to_owned(),
+                    description: Some("This is the description".to_owned()),
+                    required: false,
+                    type_ref: "simple_LONG_DescriptionFor-Me".to_owned()
+                },
+                QueryParam {
+                    name: "just-required".to_owned(),
+                    description: None,
+                    required: true,
+                    type_ref: "Another".to_owned()
+                },
+            ]
+        }), @r###"
+        pub mod example {
+            use super::super::components::responses;
+            use actix_swagger::{Answer, ContentType, StatusCode};
+            use serde::{Deserialize, Serialize};
+            #[derive(Debug, Serialize)]
+            #[serde(untagged)]
+            pub enum Response {}
+            impl Response {
+                #[inline]
+                pub fn to_answer(self) -> Answer<'static, Self> {
+                    let status = match self {};
+                    let content_type = match self {};
+                    Answer::new(self).status(status).content_type(content_type)
+                }
+            }
+            use super::super::components::parameters;
+            #[derive(Debug, Deserialize)]
+            pub struct QueryParams {
+                #[serde(rename = "simple_LONG_DescriptionFor-Me")]
+                pub simple_long_description_for_me: Option<parameters::SimpleLongDescriptionForMe>,
+                #[doc = "This is the description"]
+                #[serde(rename = "ARE_YOU_SURE")]
+                pub are_you_sure: Option<parameters::SimpleLongDescriptionForMe>,
+                #[serde(rename = "just-required")]
+                pub just_required: parameters::Another,
+            }
+            pub type Query = actix_web::http::Query<QueryParams>;
+        }
+        "###);
+    }
+}
