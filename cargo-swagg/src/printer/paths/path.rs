@@ -45,7 +45,7 @@ impl Path {
             let query_params = self.query_params.print();
 
             quote! {
-                use super::super::components::parameters;
+                use super::parameters;
 
                 #[derive(Debug, Deserialize)]
                 pub struct QueryParams {
@@ -68,7 +68,7 @@ impl Printable for Path {
 
         quote! {
             pub mod #module_name {
-                use super::super::components::responses;
+                use super::responses;
                 use actix_swagger::{Answer, ContentType, StatusCode};
                 use serde::{Serialize, Deserialize};
 
@@ -266,7 +266,7 @@ mod tests {
             query_params: vec![]
         }), @r###"
         pub mod example {
-            use super::super::components::responses;
+            use super::responses;
             use actix_swagger::{Answer, ContentType, StatusCode};
             use serde::{Deserialize, Serialize};
             #[derive(Debug, Serialize)]
@@ -344,7 +344,7 @@ mod tests {
             query_params: vec![]
         }), @r###"
         pub mod example {
-            use super::super::components::responses;
+            use super::responses;
             use actix_swagger::{Answer, ContentType, StatusCode};
             use serde::{Deserialize, Serialize};
             #[derive(Debug, Serialize)]
@@ -419,7 +419,7 @@ mod tests {
             ]
         }), @r###"
         pub mod example {
-            use super::super::components::responses;
+            use super::responses;
             use actix_swagger::{Answer, ContentType, StatusCode};
             use serde::{Deserialize, Serialize};
             #[derive(Debug, Serialize)]
@@ -433,7 +433,7 @@ mod tests {
                     Answer::new(self).status(status).content_type(content_type)
                 }
             }
-            use super::super::components::parameters;
+            use super::parameters;
             #[derive(Debug, Deserialize)]
             pub struct QueryParams {
                 #[serde(rename = "simple_LONG_DescriptionFor-Me")]

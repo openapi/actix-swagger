@@ -12,6 +12,7 @@ impl Printable for PathsModule {
         let paths = self.paths.print();
 
         quote! {
+            use super::components::{parameters, responses};
             pub mod paths {
                 #paths
             }
@@ -27,6 +28,9 @@ mod tests {
 
     #[test]
     fn components_module_default() {
-        assert_snapshot!(shot(PathsModule::default()), @"pub mod paths {}");
+        assert_snapshot!(shot(PathsModule::default()), @r###"
+        use super::components::{parameters, responses};
+        pub mod paths {}
+        "###);
     }
 }
