@@ -12,8 +12,8 @@ impl Printable for PathsModule {
         let paths = self.paths.print();
 
         quote! {
-            use super::components::{parameters, responses};
             pub mod paths {
+                use super::components::{parameters, responses};
                 #paths
             }
         }
@@ -29,8 +29,9 @@ mod tests {
     #[test]
     fn components_module_default() {
         assert_snapshot!(shot(PathsModule::default()), @r###"
-        use super::components::{parameters, responses};
-        pub mod paths {}
+        pub mod paths {
+            use super::components::{parameters, responses};
+        }
         "###);
     }
 }
