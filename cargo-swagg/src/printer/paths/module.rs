@@ -18,3 +18,15 @@ impl Printable for PathsModule {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test::shot;
+    use insta::assert_snapshot;
+
+    #[test]
+    fn components_module_default() {
+        assert_snapshot!(shot(PathsModule::default()), @"pub mod paths {}");
+    }
+}
