@@ -1,12 +1,15 @@
-.PHONY: demo demo-compile demo-format publish-swagg publish-actix
+.PHONY: demo demo-compile demo-format demo-check publish-swagg publish-actix
 
-demo: demo-compile demo-format
+demo: demo-compile demo-format demo-check
 
 demo-compile:
 	@cargo run --package cargo-swagg -- /Users/sergeysova/Projects/authmenow/backend/public-api.openapi.yaml --out-file ./demo/src/lib.rs
 
 demo-format:
 	@rustfmt -v ./demo/src/lib.rs
+
+demo-check:
+	@cargo check --package demo
 
 publish-swagg:
 	@cargo publish --manifest-path=./swagg/Cargo.toml
