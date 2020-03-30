@@ -15,7 +15,23 @@ jobs:
           override: true
           components: rustfmt
 
-      - name: Run cargo test
+      - name: Building
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+      - name: Tests
         uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --release
+
+      - name: Demo
+        run: make
+
+      - name: Demo is building
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --package demo
