@@ -32,26 +32,6 @@ impl Default for ApiStruct {
     }
 }
 
-impl ApiStruct {
-    pub fn new(api_name: String) -> Self {
-        Self {
-            api_name,
-            terms_of_service: None,
-            description: None,
-        }
-    }
-}
-
-impl From<openapiv3::Info> for ApiStruct {
-    fn from(info: openapiv3::Info) -> Self {
-        Self {
-            api_name: to_struct_name(info.title),
-            description: info.description,
-            terms_of_service: info.terms_of_service,
-        }
-    }
-}
-
 impl Printable for ApiStruct {
     fn print(&self) -> proc_macro2::TokenStream {
         let api_name = format_ident!("{}", to_struct_name(self.api_name.to_owned()));
@@ -125,33 +105,6 @@ mod tests {
             }
         }
         impl actix_web::dev::HttpServiceFactory for Api {
-            fn register(self, config: &mut actix_web::dev::AppService) {
-                self.api.register(config);
-            }
-        }
-        "###);
-    }
-
-    #[test]
-    fn without_description_and_terms() {
-        assert_snapshot!(shot(ApiStruct::new("example".to_owned())), @r###"
-        pub struct Example {
-            api: actix_swagger::Api,
-        }
-        impl Example {
-            pub fn new() -> Self {
-                Self {
-                    api: actix_swagger::Api::new(),
-                }
-            }
-        }
-        impl Default for Example {
-            fn default() -> Self {
-                let api = Self::new();
-                api
-            }
-        }
-        impl actix_web::dev::HttpServiceFactory for Example {
             fn register(self, config: &mut actix_web::dev::AppService) {
                 self.api.register(config);
             }
