@@ -23,27 +23,18 @@ where
 
 #[derive(Default)]
 pub struct GeneratedModule {
-    pub api_module: api::module::ApiModule,
-    pub components_module: components::module::ComponentsModule,
-    pub paths_module: paths::module::PathsModule,
+    pub api: api::module::ApiModule,
+    pub components: components::module::ComponentsModule,
+    pub paths: paths::module::PathsModule,
 }
 
-impl GeneratedModule {
-    pub fn set_name(&mut self, name: String) {
-        self.api_module.api.api_name = name.clone();
-        self.api_module.methods.api_name = name;
-    }
-
-    pub fn set_description(&mut self, description: String) {
-        self.api_module.api.description = Some(description);
-    }
-}
+impl GeneratedModule {}
 
 impl Printable for GeneratedModule {
     fn print(&self) -> proc_macro2::TokenStream {
-        let api_module = self.api_module.print();
-        let components_module = self.components_module.print();
-        let paths_module = self.paths_module.print();
+        let api_module = self.api.print();
+        let components_module = self.components.print();
+        let paths_module = self.paths.print();
 
         quote::quote! {
             #![allow(dead_code, unused_imports)]
@@ -106,7 +97,10 @@ mod tests {
             methods: vec![m1, m2, m3],
         };
 
-        let api_module = ApiModule { api, methods };
+        let api_module = ApiModule {
+            structure: api,
+            methods,
+        };
 
         let components_module = ComponentsModule {
             parameters: ParametersModule {
@@ -351,9 +345,9 @@ mod tests {
         };
 
         let generated_module = GeneratedModule {
-            api_module,
-            components_module,
-            paths_module,
+            api: api_module,
+            components: components_module,
+            paths: paths_module,
         };
 
         assert_snapshot!(shot(generated_module), @r###"

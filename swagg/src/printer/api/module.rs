@@ -5,13 +5,28 @@ use quote::quote;
 
 #[derive(Default)]
 pub struct ApiModule {
-    pub api: ApiStruct,
+    pub structure: ApiStruct,
     pub methods: ImplApi,
+}
+
+impl ApiModule {
+    pub fn set_name(&mut self, name: String) {
+        self.structure.api_name = name.clone();
+        self.methods.api_name = name;
+    }
+
+    pub fn set_description(&mut self, description: Option<String>) {
+        self.structure.description = description;
+    }
+
+    pub fn set_terms_of_service(&mut self, terms: Option<String>) {
+        self.structure.terms_of_service = terms;
+    }
 }
 
 impl Printable for ApiModule {
     fn print(&self) -> proc_macro2::TokenStream {
-        let api_struct = self.api.print();
+        let api_struct = self.structure.print();
         let methods_impl = self.methods.print();
         quote! {
             pub mod api {

@@ -20,7 +20,7 @@ pub fn shot<T: crate::printer::Printable>(input: T) -> String {
         .arg("files")
         .arg(file_path.as_os_str())
         .spawn()
-        .expect("Foo");
+        .expect("Rustfmt failed to run");
 
     let _ = child.wait().expect("Failed to wait for rustfmt");
 

@@ -38,10 +38,11 @@ pub fn to_string(source: &str, format: Format) -> Result<String, Error> {
 
     let mut generated = printer::GeneratedModule::default();
 
-    generated.set_name(api.info.title);
-    if let Some(description) = api.info.description {
-        generated.set_description(description);
-    }
+    generated.api.set_name(api.info.title);
+    generated.api.set_description(api.info.description);
+    generated
+        .api
+        .set_terms_of_service(api.info.terms_of_service);
 
     Ok(format!("{}", generated.print()))
 }

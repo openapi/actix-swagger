@@ -17,6 +17,9 @@ pub struct ApiStruct {
     pub api_name: String,
     pub terms_of_service: Option<String>,
     pub description: Option<String>,
+    // pub license: Option<String>,
+    // pub contact: Option<String>,
+    // pub version: semver::Version,
 }
 
 impl Default for ApiStruct {
