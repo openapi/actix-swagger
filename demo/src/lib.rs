@@ -1,23 +1,23 @@
 #![allow(dead_code, unused_imports)]
 pub mod api {
-    #[doc = "Public API for frontend and OAuth applications [Review Github](https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/)"]
-    pub struct AuthmenowPublicApi {
+    #[doc = "Public API for Demo"]
+    pub struct DemoApi {
         api: actix_swagger::Api,
     }
-    impl AuthmenowPublicApi {
+    impl DemoApi {
         pub fn new() -> Self {
             Self {
                 api: actix_swagger::Api::new(),
             }
         }
     }
-    impl Default for AuthmenowPublicApi {
+    impl Default for DemoApi {
         fn default() -> Self {
             let api = Self::new();
             api
         }
     }
-    impl actix_web::dev::HttpServiceFactory for AuthmenowPublicApi {
+    impl actix_web::dev::HttpServiceFactory for DemoApi {
         fn register(self, config: &mut actix_web::dev::AppService) {
             self.api.register(config);
         }
@@ -26,7 +26,7 @@ pub mod api {
     use actix_swagger::{Answer, Method};
     use actix_web::{dev::Factory, FromRequest};
     use std::future::Future;
-    impl AuthmenowPublicApi {}
+    impl DemoApi {}
 }
 pub mod components {
     pub mod parameters {

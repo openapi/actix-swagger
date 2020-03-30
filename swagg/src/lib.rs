@@ -8,11 +8,13 @@ pub mod test;
 
 use printer::Printable;
 
+/// Format for OpenAPI3 specification
 pub enum Format {
     Yaml,
     Json,
 }
 
+/// Describes convertation error
 #[derive(Debug)]
 pub enum Error {
     InvalidSource,
@@ -28,6 +30,7 @@ impl std::fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
+/// Convert source of OpenAPI3 specification to rust code in string representation
 pub fn to_string(source: &str, format: Format) -> Result<String, Error> {
     let api: OpenAPI = match format {
         Format::Yaml => serde_yaml::from_str(&source).map_err(|_| Error::InvalidSource)?,
