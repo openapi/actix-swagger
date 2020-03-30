@@ -11,13 +11,21 @@ pub struct Path {
 
 impl Path {
     fn print_enum_variants(&self) -> proc_macro2::TokenStream {
-        let variants = self.response.responses.iter().map(|r| r.print_enum_variant());
+        let variants = self
+            .response
+            .responses
+            .iter()
+            .map(|r| r.print_enum_variant());
 
         quote! { #(#variants,)* }
     }
 
     fn print_status_variants(&self) -> proc_macro2::TokenStream {
-        let variants = self.response.responses.iter().map(|r| r.print_status_variant());
+        let variants = self
+            .response
+            .responses
+            .iter()
+            .map(|r| r.print_status_variant());
         let tokens = quote! { #(#variants,)* };
 
         quote! {
@@ -28,7 +36,11 @@ impl Path {
     }
 
     fn print_content_type_variants(&self) -> proc_macro2::TokenStream {
-        let variants = self.response.responses.iter().map(|r| r.print_content_type_variant());
+        let variants = self
+            .response
+            .responses
+            .iter()
+            .map(|r| r.print_content_type_variant());
         let tokens = quote! { #(#variants,)* };
 
         quote! {
@@ -125,7 +137,10 @@ pub struct StatusVariant {
 
 impl StatusVariant {
     pub fn name(&self) -> proc_macro2::Ident {
-        let name = self.x_variant_name.clone().unwrap_or(self.status.to_string());
+        let name = self
+            .x_variant_name
+            .clone()
+            .unwrap_or(self.status.to_string());
         format_ident!("{}", name.to_pascal_case())
     }
 

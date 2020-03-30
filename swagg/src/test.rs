@@ -28,7 +28,8 @@ pub fn shot<T: crate::printer::Printable>(input: T) -> String {
 
     let mut file = File::open(&file_path).expect("Failed to open tempfile");
     file.sync_all().expect("Faile to sync all");
-    file.read_to_string(&mut result).expect("Failed to read from tempfile");
+    file.read_to_string(&mut result)
+        .expect("Failed to read from tempfile");
 
     drop(file);
     dir.close().expect("Failed to close directory");

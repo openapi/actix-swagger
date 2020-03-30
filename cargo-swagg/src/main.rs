@@ -1,28 +1,36 @@
-use openapiv3::OpenAPI;
-use std::fs;
-
-mod printer;
-
-#[cfg(test)]
-pub mod test;
-
-use printer::Printable;
-
 fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
-    let file_path = "/Users/sergeysova/Projects/authmenow/backend/public-api.openapi.yaml";
-    let content = fs::read_to_string(&file_path)?;
-    let api: OpenAPI = serde_yaml::from_str(&content)?;
+    let opts = clap::App::new("cargo-swagg")
+        .author("Sergey Sova")
+        .about("Generate actix-web code from openapi3 specification from CLI")
+        .arg(
+            clap::Arg::with_name("source")
+                .help("Path to openapi3 specification file")
+                .required(true)
+                .takes_value(true),
+        )
+        .arg(
+            clap::Arg::with_name("out-file")
+                .long("out-file")
+                .required(false)
+                .help("Where to write rust code")
+                .takes_value(true),
+        )
+        .get_matches();
 
-    let mut generated = printer::GeneratedModule::default();
+    let content = std::fs::read_to_string(
+        &opts
+            .value_of("source")
+            .expect("Pass file with openapi3 specification"),
+    )?;
 
-    // println!("{:#?}", api);
+    let source_code = swagg::to_string(&content, swagg::Format::Yaml).unwrap();
 
-    generated.set_name(api.info.title);
-    if let Some(description) = api.info.description {
-        generated.set_description(description);
+    let code = format!("{}", source_code);
+    if let Some(file) = opts.value_of("out-file") {
+        std::fs::write(file, code).expect("Failed to write rust code to out file");
+    } else {
+        println!("{}", code);
     }
-
-    println!("{}", generated.print());
 
     Ok(())
 }

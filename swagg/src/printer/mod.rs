@@ -58,10 +58,13 @@ mod tests {
     use super::{
         api::{ApiModule, ApiStruct, BindApiMethod, HttpMethod, ImplApi},
         components::{
-            parameters::ParametersModule, request_bodies::RequestBodiesModule, responses::ResponsesModule, Component,
-            ComponentsModule, EnumVariant, Field, FieldType, FormatFloat, FormatInteger, FormatString, NativeType,
+            parameters::ParametersModule, request_bodies::RequestBodiesModule,
+            responses::ResponsesModule, Component, ComponentsModule, EnumVariant, Field, FieldType,
+            FormatFloat, FormatInteger, FormatString, NativeType,
         },
-        paths::{ContentType, Path, PathsModule, QueryParam, ResponseEnum, ResponseStatus, StatusVariant},
+        paths::{
+            ContentType, Path, PathsModule, QueryParam, ResponseEnum, ResponseStatus, StatusVariant,
+        },
         GeneratedModule,
     };
     use crate::test::shot;
@@ -341,7 +344,9 @@ mod tests {
             },
         };
 
-        let paths_module = PathsModule { paths: vec![p1, p2] };
+        let paths_module = PathsModule {
+            paths: vec![p1, p2],
+        };
 
         let generated_module = GeneratedModule {
             api_module,

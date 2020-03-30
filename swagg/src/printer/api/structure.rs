@@ -7,7 +7,9 @@ use regex::Regex;
 pub fn to_struct_name(string: String) -> String {
     let re_name = Regex::new(r"[^\w_\-\d]+").expect("re_name invalid regex");
 
-    re_name.replace_all(string.to_pascal_case().as_ref(), "").to_string()
+    re_name
+        .replace_all(string.to_pascal_case().as_ref(), "")
+        .to_string()
 }
 
 /// Object describing main api structure and useful impls

@@ -1,6 +1,6 @@
 [package]
-name = "cargo-swagg"
-version = "0.0.0"
+name = "swagg"
+version = "0.1.0"
 authors = ["Sergey Sova <mail@sergeysova.com>"]
 categories = [
   "development-tools",
@@ -9,14 +9,21 @@ categories = [
   "web-programming"
 ]
 description = "Code generator from swagger file for actix-web framework"
-keywords = ["actix", "actix-web", "swagger", "codegen", "openapi", "cli"]
+keywords = ["actix", "actix-web", "swagger", "codegen", "openapi"]
 license = "MIT"
 edition = "2018"
 repository = "https://github.com/sergeysova/actix-swagger"
 
 [dependencies]
+openapiv3 = "0.3.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.8"
-swagg = "0.1.0"
-clap = { version = "2.33.0", features = ["suggestions", "color", "wrap_help"] }
+quote = "1.0.2"
+inflections = "1.1.1"
+proc-macro2 = "1.0.8"
+regex = "1.3.3"
+
+[dev-dependencies]
+insta = { version = "0.15.0", features = ["ron"] }
+tempfile = "3.1.0"

@@ -17,7 +17,7 @@ pub mod api {
         }
     }
     impl actix_web::dev::HttpServiceFactory for AuthmenowPublicApi {
-        fn register(mut self, config: &mut actix_web::dev::AppService) {
+        fn register(self, config: &mut actix_web::dev::AppService) {
             self.api.register(config);
         }
     }
@@ -38,4 +38,6 @@ pub mod components {
         use serde::{Deserialize, Serialize};
     }
 }
-pub mod paths {}
+pub mod paths {
+    use super::components::{parameters, responses};
+}

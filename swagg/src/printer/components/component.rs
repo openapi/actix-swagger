@@ -195,7 +195,9 @@ fn path_to_stream(path: String) -> proc_macro2::TokenStream {
     if path.contains("::") {
         let mut parts = path.split("::");
 
-        let first = parts.next().expect("Path split to parts requires first element");
+        let first = parts
+            .next()
+            .expect("Path split to parts requires first element");
         let first_ident = format_ident!("{}", first);
 
         let rest = parts.map(|p| format_ident!("{}", p));
