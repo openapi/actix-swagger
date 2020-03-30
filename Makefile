@@ -3,7 +3,7 @@
 demo: demo-compile demo-format demo-check
 
 demo-compile:
-	@cargo run --package cargo-swagg -- /Users/sergeysova/Projects/authmenow/backend/public-api.openapi.yaml --out-file ./demo/src/lib.rs
+	@cargo run --package cargo-swagg -- ./demo/openapi.yaml --out-file ./demo/src/lib.rs
 
 demo-format:
 	@rustfmt -v ./demo/src/lib.rs
