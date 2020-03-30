@@ -12,8 +12,7 @@ demo-check:
 	@cargo check --package demo
 
 publish-swagg:
-	@cargo publish --manifest-path=./swagg/Cargo.toml
-	@cargo publish --manifest-path=./cargo-swagg
+	@cargo publish --manifest-path=./swagg/Cargo.toml; cargo publish --manifest-path=./cargo-swagg/Cargo.toml
 
 publish-actix:
 	@cargo publish --manifest-path=./actix-swagger/Cargo.toml
