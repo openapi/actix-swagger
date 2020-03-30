@@ -1,4 +1,4 @@
-use openapiv3::OpenAPI;
+use openapiv3::{OpenAPI, ReferenceOr};
 
 mod highway;
 mod printer;
@@ -40,12 +40,28 @@ pub fn to_string(source: &str, format: Format) -> Result<String, Error> {
     // eprintln!("{:#?}", api.components);
 
     let mut generated = printer::GeneratedModule::default();
+    let mut highway_components = highway::Components::new();
 
     generated.api.set_name(api.info.title);
     generated.api.set_description(api.info.description);
     generated
         .api
         .set_terms_of_service(api.info.terms_of_service);
+
+    if let Some(components) = api.components {
+        for (name, body) in components.request_bodies.iter() {
+            match body {
+                ReferenceOr::Item(body) => {
+                    highway_components.parse_request_body(&name, &body);
+                }
+                ReferenceOr::Reference { reference } => {
+                    log::info!("skipping request body reference {}", reference);
+                }
+            }
+        }
+    }
+
+    println!("{:#?}", highway_components);
 
     Ok(format!("{}", generated.print()))
 }

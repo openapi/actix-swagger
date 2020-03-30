@@ -1,4 +1,5 @@
 fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
+    env_logger::init();
     let opts = clap::App::new("cargo-swagg")
         .author("Sergey Sova")
         .about("Generate actix-web code from openapi3 specification from CLI")
