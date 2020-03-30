@@ -9,7 +9,7 @@ categories = [
   "web-programming"
 ]
 description = "Code generator from swagger file for actix-web framework"
-keywords = ["actix", "actix-web", "swagger", "codegen", "openapi", "cli"]
+keywords = ["actix-web", "swagger", "codegen", "openapi", "cli"]
 license = "MIT"
 edition = "2018"
 repository = "https://github.com/sergeysova/actix-swagger"
