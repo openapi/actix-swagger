@@ -22,7 +22,7 @@ pub fn shot<T: crate::printer::Printable>(input: T) -> String {
         .spawn()
         .expect("Foo");
 
-    let ecode = child.wait().expect("Failed to wait for rustfmt");
+    let _ = child.wait().expect("Failed to wait for rustfmt");
 
     let mut result = String::new();
 

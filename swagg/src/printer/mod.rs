@@ -46,6 +46,8 @@ impl Printable for GeneratedModule {
         let paths_module = self.paths_module.print();
 
         quote::quote! {
+            #![allow(dead_code, unused_imports)]
+
             #api_module
             #components_module
             #paths_module
@@ -355,6 +357,7 @@ mod tests {
         };
 
         assert_snapshot!(shot(generated_module), @r###"
+        #![allow(dead_code, unused_imports)]
         pub mod api {
             #[doc = "Public API for frontend and OAuth applications [Review Github](https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/)"]
             pub struct ExampleApiDef {

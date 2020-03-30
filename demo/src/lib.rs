@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_imports)]
 pub mod api {
     #[doc = "Public API for frontend and OAuth applications [Review Github](https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/)"]
     pub struct AuthmenowPublicApi {
