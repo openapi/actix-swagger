@@ -1,4 +1,4 @@
-# cargo-swagg
+# actix swagger
 
 ## Usage
 
@@ -11,7 +11,7 @@ cargo install cargo-swagg
 # Add support library to your project (via cargo-edit or manual)
 cargo add actix-swagger
 
-# Generate your code with command
+# Generate your code with cargo subcommand
 cargo swagg ./openapi.yaml --out-file ./src/api.rs
 
 # Format file after
