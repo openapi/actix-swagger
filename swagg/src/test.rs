@@ -1,4 +1,4 @@
-pub fn shot<T: crate::printer::Printable>(input: T) -> String {
+pub fn pretty(input: String) -> String {
     use std::fs::File;
     use std::io::{Read, Write};
     use std::process::Command;
@@ -8,9 +8,7 @@ pub fn shot<T: crate::printer::Printable>(input: T) -> String {
     println!("{:?}", file_path);
     let mut file = File::create(&file_path).expect("Failed to create tempfile");
 
-    let printed_source = input.print().to_string();
-
-    file.write_all(printed_source.as_bytes())
+    file.write_all(input.as_bytes())
         .expect("Failed to write source");
 
     drop(file);
@@ -35,4 +33,8 @@ pub fn shot<T: crate::printer::Printable>(input: T) -> String {
     dir.close().expect("Failed to close directory");
 
     result.trim().to_owned()
+}
+
+pub fn shot<T: crate::printer::Printable>(input: T) -> String {
+    pretty(input.print().to_string())
 }

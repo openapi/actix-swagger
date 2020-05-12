@@ -248,6 +248,7 @@ fn parse_schema(
             let field_type = match schema_type {
                 Type::Number(_number) => FieldType::Number,
                 Type::Integer(_integer) => FieldType::Integer,
+                // TODO: parse enum
                 Type::String(_string) => FieldType::String,
                 Type::Boolean {} => FieldType::Boolean,
                 Type::Object(object) => {
@@ -312,8 +313,92 @@ fn parse_schema_object(
 
 impl Into<printer::GeneratedModule> for Components {
     fn into(self) -> printer::GeneratedModule {
-        let module = Default::default();
+        let mut module = printer::GeneratedModule::default();
+
+        for (_, component) in self.schemas.into_iter() {
+            module.components.schemas.list.push(component.into());
+        }
 
         module
+    }
+}
+
+use printer::components as comp;
+
+impl Into<comp::Component> for Component {
+    fn into(self) -> comp::Component {
+        match self.kind {
+            ComponentKind::Object { fields } => {
+                let mut target_fields = vec![];
+
+                for (field_name, field) in fields.into_iter() {
+                    target_fields.push(into_field_type(&field_name, field));
+                }
+
+                let component = comp::Component::Object {
+                    name: self.name,
+                    description: self.description,
+                    fields: target_fields,
+                };
+
+                component
+            }
+            ComponentKind::String => comp::Component::Type {
+                name: self.name,
+                description: self.description,
+                type_value: comp::FieldType::Native(comp::NativeType::String {
+                    format: Default::default(),
+                }),
+            },
+            ComponentKind::Integer => comp::Component::Type {
+                name: self.name,
+                description: self.description,
+                type_value: comp::FieldType::Native(comp::NativeType::Integer {
+                    format: Default::default(),
+                }),
+            },
+            ComponentKind::Number => comp::Component::Type {
+                name: self.name,
+                description: self.description,
+                type_value: comp::FieldType::Native(comp::NativeType::Float {
+                    format: Default::default(),
+                }),
+            },
+            ComponentKind::Boolean => comp::Component::Type {
+                name: self.name,
+                description: self.description,
+                type_value: comp::FieldType::Native(comp::NativeType::Boolean),
+            },
+            _ => unimplemented!(),
+        }
+    }
+}
+
+fn into_field_type(name: &String, field: ComponentField) -> comp::Field {
+    let field_type = match field.field_type {
+        FieldType::String => comp::FieldType::Native(comp::NativeType::String {
+            format: Default::default(),
+        }),
+        FieldType::Integer => comp::FieldType::Native(comp::NativeType::Integer {
+            format: Default::default(),
+        }),
+        FieldType::Number => comp::FieldType::Native(comp::NativeType::Float {
+            format: Default::default(),
+        }),
+        FieldType::Boolean => comp::FieldType::Native(comp::NativeType::Boolean),
+        FieldType::Type(type_path) => {
+            if type_path.contains("::") || type_path.contains("<") {
+                comp::FieldType::Internal(type_path)
+            } else {
+                comp::FieldType::Custom(type_path)
+            }
+        }
+    };
+
+    comp::Field {
+        name: name.clone(),
+        description: field.description,
+        required: field.required,
+        field_type,
     }
 }
