@@ -50,7 +50,6 @@ impl Default for ComponentKind {
 
 #[derive(Debug, Default, Hash, PartialEq, Eq, Clone)]
 pub struct ComponentField {
-    pub name: String,
     pub required: bool,
     pub description: Option<String>,
     pub field_type: FieldType,

@@ -60,10 +60,16 @@ pub fn to_string(source: &str, format: Format) -> Result<String, Error> {
         //     }
         // }
 
-        println!("{:#?}", components.schemas);
-
         for (name, schema) in components.schemas.iter() {
-            parse_ref_or_schema(&name, &schema);
+            match parse_ref_or_schema(&name, &schema) {
+                Ok((field, components)) => {
+                    println!("Schema: {} {:#?}", name, field);
+                    println!("Parsed components {:#?}", components);
+                }
+                Err(reason) => {
+                    eprintln!("Failed {} {:#?}", name, reason);
+                }
+            }
         }
     }
 
@@ -72,18 +78,18 @@ pub fn to_string(source: &str, format: Format) -> Result<String, Error> {
     Ok(format!("{}", generated.print()))
 }
 
+#[derive(Debug)]
+enum ParseSchemaError {
+    UnsupportedType,
+    ReferenceNotSupported,
+}
+
 fn parse_ref_or_schema(
     name: &String,
     ref_or: &ReferenceOr<openapiv3::Schema>,
-) -> Vec<highway::Component> {
+) -> Result<(highway::FieldType, Vec<highway::Component>), ParseSchemaError> {
     match ref_or {
-        ReferenceOr::Item(schema) => {
-            let comp = parse_schema(&name, &schema);
-
-            println!("{:#?}", comp);
-
-            comp
-        }
+        ReferenceOr::Item(schema) => parse_schema(&name, &schema),
         ReferenceOr::Reference { reference } => {
             log::info!(
                 "reference for schemas is not supported yet. Skipping {} for {}...",
@@ -91,138 +97,90 @@ fn parse_ref_or_schema(
                 name
             );
 
-            vec![]
+            Err(ParseSchemaError::ReferenceNotSupported)
         }
     }
 }
 
-fn parse_schema(name: &String, schema: &openapiv3::Schema) -> Vec<highway::Component> {
+fn parse_schema(
+    name: &String,
+    schema: &openapiv3::Schema,
+) -> Result<(highway::FieldType, Vec<highway::Component>), ParseSchemaError> {
     use inflections::Inflect;
 
     let mut list = vec![];
-
-    let mut component = highway::Component {
-        name: name.clone().to_pascal_case(),
-        description: schema.schema_data.description.clone(),
-        ..Default::default()
-    };
 
     use openapiv3::{SchemaKind, Type};
 
     match &schema.schema_kind {
         SchemaKind::Type(schema_type) => {
-            let kind: highway::ComponentKind = match schema_type {
+            let field_type = match schema_type {
+                Type::Number(_number) => highway::FieldType::Number,
+                Type::Integer(_integer) => highway::FieldType::Integer,
+                Type::String(_string) => highway::FieldType::String,
+                Type::Boolean {} => highway::FieldType::Boolean,
                 Type::Object(object) => {
-                    let mut fields = indexmap::IndexMap::new();
+                    let (fields, mut created_components) = parse_schema_object(&name, object)?;
 
-                    // Iterate over fields in object
-                    for (field, schema) in object.properties.iter() {
-                        // Parse field schema to highway components
-                        let field_components = parse_ref_or_schema(&field, &schema.clone().unbox());
+                    let component_name = name.clone().to_pascal_case();
+                    let component = highway::Component {
+                        name: component_name.clone(),
+                        description: schema.schema_data.description.clone(),
+                        kind: highway::ComponentKind::Object { fields },
+                    };
 
-                        for field_component in field_components.iter() {
-                            let required = object
-                                .required
-                                .iter()
-                                .find(|found| *found == field)
-                                .is_some();
+                    list.push(component);
+                    list.append(&mut created_components);
 
-                            let description = field_component.description.clone();
-
-                            match field_component.kind {
-                                highway::ComponentKind::Number => {
-                                    fields.insert(
-                                        field.clone(),
-                                        highway::ComponentField {
-                                            name: field.clone(),
-                                            required,
-                                            description,
-                                            field_type: highway::FieldType::Number,
-                                        },
-                                    );
-                                }
-                                highway::ComponentKind::Integer => {
-                                    fields.insert(
-                                        field.clone(),
-                                        highway::ComponentField {
-                                            name: field.clone(),
-                                            required,
-                                            description,
-                                            field_type: highway::FieldType::Integer,
-                                        },
-                                    );
-                                }
-                                highway::ComponentKind::Boolean => {
-                                    fields.insert(
-                                        field.clone(),
-                                        highway::ComponentField {
-                                            name: field.clone(),
-                                            required,
-                                            description,
-                                            field_type: highway::FieldType::Boolean,
-                                        },
-                                    );
-                                }
-                                highway::ComponentKind::String => {
-                                    fields.insert(
-                                        field.clone(),
-                                        highway::ComponentField {
-                                            name: field.clone(),
-                                            required,
-                                            description,
-                                            field_type: highway::FieldType::String,
-                                        },
-                                    );
-                                }
-                                highway::ComponentKind::Object { .. } => {
-                                    let field_structure_component = highway::Component {
-                                        // Full name of the structure for nested object
-                                        name: format!(
-                                            "{}{}",
-                                            name.to_pascal_case(),
-                                            field.to_pascal_case()
-                                        ),
-                                        description: field_component.description.clone(),
-                                        kind: field_component.kind.clone(),
-                                    };
-
-                                    fields.insert(
-                                        field.clone(),
-                                        highway::ComponentField {
-                                            /// name of the field
-                                            name: field.clone(),
-                                            required,
-                                            description,
-                                            field_type: highway::FieldType::Type(
-                                                field_structure_component.name.clone(),
-                                            ),
-                                        },
-                                    );
-
-                                    list.push(field_structure_component);
-                                }
-                                _ => {}
-                            };
-                        }
-                    }
-
-                    highway::ComponentKind::Object { fields }
+                    highway::FieldType::Type(component_name.clone())
                 }
-                Type::Array(array) => highway::ComponentKind::Array {
-                    items: Default::default(),
-                },
-                Type::Number(_number) => highway::ComponentKind::Number,
-                Type::Integer(_integer) => highway::ComponentKind::Integer,
-                Type::String(_string) => highway::ComponentKind::String,
-                Type::Boolean {} => highway::ComponentKind::Boolean,
+                Type::Array(_array) => unimplemented!(),
             };
 
-            component.kind = kind;
+            Ok((field_type, list))
         }
-        other => log::info!("this schema kind is not supported {:?}", other),
+        other => {
+            log::info!("this schema kind is not supported {:?}", other);
+            Err(ParseSchemaError::UnsupportedType)
+        }
+    }
+}
+
+fn parse_schema_object(
+    name: &String,
+    schema_object: &openapiv3::ObjectType,
+) -> Result<
+    (
+        indexmap::IndexMap<String, highway::ComponentField>,
+        Vec<highway::Component>,
+    ),
+    ParseSchemaError,
+> {
+    use inflections::Inflect;
+
+    let mut components = vec![];
+    let mut fields = indexmap::IndexMap::new();
+
+    for (field_name, schema) in schema_object.properties.iter() {
+        let inner_name = format!("{}{}", name, field_name.clone().to_pascal_case());
+
+        let (field_type, mut created_components) =
+            parse_ref_or_schema(&inner_name, &schema.clone().unbox())?;
+
+        components.append(&mut created_components);
+
+        let field = highway::ComponentField {
+            required: schema_object
+                .required
+                .iter()
+                .find(|found| *found == field_name)
+                .is_some(),
+            description: None, // TODO: parse field description
+            field_type,
+        };
+
+        fields.insert(field_name.clone(), field);
     }
 
-    list.push(component);
-
-    list
+    Ok((fields, components))
 }
