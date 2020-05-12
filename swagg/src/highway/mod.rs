@@ -3,6 +3,7 @@
 //! This module is a database of components and paths
 //! Useful when converting OpenAPI structures to printer structures
 
+use crate::printer;
 use indexmap::IndexMap;
 use openapiv3::{ReferenceOr, Schema};
 
@@ -307,4 +308,12 @@ fn parse_schema_object(
     }
 
     Ok((fields, components))
+}
+
+impl Into<printer::GeneratedModule> for Components {
+    fn into(self) -> printer::GeneratedModule {
+        let module = Default::default();
+
+        module
+    }
 }

@@ -39,14 +39,7 @@ pub fn to_string(source: &str, format: Format) -> Result<String, Error> {
 
     // eprintln!("{:#?}", api.components);
 
-    let mut generated = printer::GeneratedModule::default();
     let mut highway_components = highway::Components::new();
-
-    generated.api.set_name(api.info.title);
-    generated.api.set_description(api.info.description);
-    generated
-        .api
-        .set_terms_of_service(api.info.terms_of_service);
 
     if let Some(components) = api.components {
         // for (name, body) in components.request_bodies.iter() {
@@ -68,6 +61,14 @@ pub fn to_string(source: &str, format: Format) -> Result<String, Error> {
     }
 
     println!("{:#?}", highway_components);
+
+    let mut generated: printer::GeneratedModule = highway_components.into();
+
+    generated.api.set_name(api.info.title);
+    generated.api.set_description(api.info.description);
+    generated
+        .api
+        .set_terms_of_service(api.info.terms_of_service);
 
     Ok(format!("{}", generated.print()))
 }
