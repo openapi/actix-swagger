@@ -18,13 +18,21 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
         )
         .get_matches();
 
-    let content = std::fs::read_to_string(
-        &opts
-            .value_of("source")
-            .expect("Pass file with openapi3 specification"),
-    )?;
+    let path = opts
+        .value_of("source")
+        .expect("Pass file with openapi3 specification");
 
-    let source_code = swagg::to_string(&content, swagg::Format::Yaml).unwrap();
+    let path = std::path::Path::new(&path);
+
+    let content = std::fs::read_to_string(&path)?;
+
+    let format = match path.extension().and_then(|ext| ext.to_str()) {
+        Some("yaml") | Some("yml") | None => swagg::Format::Yaml,
+        Some("json") => swagg::Format::Json,
+        Some(ext) => panic!("Unexpected source extension {}", ext),
+    };
+
+    let source_code = swagg::to_string(&content, format).unwrap();
 
     let code = format!("{}", source_code);
     if let Some(file) = opts.value_of("out-file") {
