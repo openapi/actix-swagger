@@ -2,7 +2,7 @@
 
 ## Usage
 
-> Not for production use
+> Not for production use yet
 
 ```bash
 # Add cargo command to simplify usage
