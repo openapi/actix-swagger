@@ -40,6 +40,25 @@ pub mod components {
     }
     pub mod schemas {
         use serde::{Deserialize, Serialize};
+        #[doc = "Current user in a session"]
+        #[derive(Debug, Serialize, Deserialize)]
+        pub struct SessionUser {
+            #[serde(rename = "firstName")]
+            pub first_name: String,
+            #[serde(rename = "lastName")]
+            pub last_name: String,
+            pub inner: Option<SessionUserInner>,
+        }
+        #[derive(Debug, Serialize, Deserialize)]
+        pub struct SessionUserInner {
+            pub foo: Option<f32>,
+            pub bar: i32,
+            pub baz: SessionUserInnerBaz,
+        }
+        #[derive(Debug, Serialize, Deserialize)]
+        pub struct SessionUserInnerBaz {
+            pub demo: Option<String>,
+        }
     }
 }
 pub mod paths {

@@ -1,0 +1,491 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Demo API.",
+    "version": "0.1.0",
+    "description": "Public API for Demo"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:9005/"
+    }
+  ],
+  "paths": {
+    "/oauth/authorize": {
+      "get": {
+        "operationId": "oauthAuthorizeRequest",
+        "tags": [
+          "OAuth"
+        ],
+        "description": "Authorization request",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OAuthResponseType"
+          },
+          {
+            "$ref": "#/components/parameters/OAuthClientId"
+          },
+          {
+            "$ref": "#/components/parameters/OAuthRedirectUri"
+          },
+          {
+            "$ref": "#/components/parameters/OAuthScope"
+          },
+          {
+            "$ref": "#/components/parameters/OAuthState"
+          }
+        ],
+        "responses": {
+          "303": {
+            "$ref": "#/components/responses/OAuthAuthorizeRequestDone"
+          }
+        }
+      }
+    },
+    "/oauth/token": {
+      "post": {
+        "operationId": "oauthToken",
+        "tags": [
+          "OAuth"
+        ],
+        "description": "Exchange the authorization code for an access token",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/OAuthAccessTokenExchange"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/OAuthAccessTokenCreated"
+          }
+        }
+      }
+    },
+    "/register/request": {
+      "post": {
+        "operationId": "registerRequest",
+        "tags": [
+          "Register"
+        ],
+        "description": "Send registration link to email",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Register"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/RegistrationRequestCreated"
+          },
+          "400": {
+            "$ref": "#/components/responses/RegisterFailed"
+          },
+          "500": {
+            "description": "Something goes wrong"
+          }
+        }
+      }
+    },
+    "/register/confirmation": {
+      "post": {
+        "operationId": "registerConfirmation",
+        "tags": [
+          "Register"
+        ],
+        "description": "Confirm email, fill profile required fields and create user",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RegisterConfirmation"
+        },
+        "responses": {
+          "201": {
+            "description": "Okay, user created"
+          },
+          "400": {
+            "$ref": "#/components/responses/RegisterConfirmationFailed"
+          },
+          "500": {
+            "description": "Something goes wrong"
+          }
+        }
+      }
+    },
+    "/session/create": {
+      "post": {
+        "operationId": "sessionCreate",
+        "tags": [
+          "Session"
+        ],
+        "description": "Login and create new session tokens",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SessionCreate"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/SessionCreateSucceeded"
+          },
+          "400": {
+            "$ref": "#/components/responses/SessionCreateFailed"
+          },
+          "500": {
+            "description": "Something went wrong"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "OAuthAuthorizeRequestDone": {
+        "description": "User redirected to `redirect_uri` with `error` or `code` <br/>\nPossible errors: <br/>\nIf the user denies the authorization request, the server will redirect the user back to the redirect URL with error=`access_denied` in the query string, and no code will be present. It is up to the app to decide what to display to the user at this point.<br/>\n`invalid_request` — The request is missing a required parameter, includes an invalid parameter value, or is otherwise malformed.<br/>\n`unsupported_response_type` — The authorization server does not support obtaining an authorization code using this method.<br/>\n`invalid_scope` — The requested scope is invalid, unknown, or malformed.<br/>\n`server_error` — The authorization server encountered an unexpected condition which prevented it from fulfilling the request.<br/>\n`temporarily_unavailable` — The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.<br/>\n[OAuth2 Possible Errors](https://www.oauth.com/oauth2-servers/server-side-apps/possible-errors/)\n",
+        "headers": {
+          "Location": {
+            "schema": {
+              "type": "string",
+              "format": "uri",
+              "example": "https://example-app.com/oauth/callback?code=6a10d91379714605acb6c4b3f26a85aa"
+            }
+          }
+        }
+      },
+      "OAuthAccessTokenCreated": {
+        "description": "The auth services validated the request and responds with an access token [OAuth2 Example Flow](https://www.oauth.com/oauth2-servers/server-side-apps/example-flow/)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "access_token",
+                "token_type",
+                "expires"
+              ],
+              "properties": {
+                "access_token": {
+                  "type": "string"
+                },
+                "token_type": {
+                  "type": "string",
+                  "enum": [
+                    "bearer"
+                  ]
+                },
+                "expires": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "UTC Unix TimeStamp when the access token expires"
+                }
+              }
+            }
+          }
+        }
+      },
+      "RegistrationRequestCreated": {
+        "description": "Registration link sent to email, now user can find out when the link expires",
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "expiresAt"
+              ],
+              "properties": {
+                "expiresAt": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "UTC Unix TimeStamp when the link expires"
+                }
+              }
+            }
+          }
+        }
+      },
+      "RegisterFailed": {
+        "description": "Please, login or recover password",
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "error"
+              ],
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "enum": [
+                    "email_already_registered",
+                    "invalid_form",
+                    "invalid_payload"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "RegisterConfirmationFailed": {
+        "description": "Please, login or recover password",
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "error"
+              ],
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "enum": [
+                    "code_invalid_or_expired",
+                    "email_already_activated",
+                    "invalid_form",
+                    "invalid_payload"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "SessionCreateSucceeded": {
+        "description": "Session created, token wrote to cookies",
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "firstName",
+                "lastName"
+              ],
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "SessionCreateFailed": {
+        "description": "Login failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "error"
+              ],
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "enum": [
+                    "invalid_credentials",
+                    "invalid_form",
+                    "invalid_payload"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "OAuthResponseType": {
+        "name": "response_type",
+        "in": "query",
+        "required": true,
+        "description": "response_type is set to code indicating that you want an authorization code as the response.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "code"
+          ]
+        }
+      },
+      "OAuthClientId": {
+        "name": "client_id",
+        "in": "query",
+        "required": true,
+        "description": "The client_id is the identifier for your app. You will have received a client_id when first registering your app with the service.",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "example": "41190cee-5231-4dcc-8167-ebf798b55ce3"
+        }
+      },
+      "OAuthRedirectUri": {
+        "name": "redirect_uri",
+        "in": "query",
+        "required": true,
+        "description": "The redirect_uri may be optional depending on the API, but is highly recommended.<br/>\nThis is the URL to which you want the user to be redirected after the authorization is complete.<br/>\nThis must match the redirect URL that you have previously registered with the service.<br/>\n",
+        "schema": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://example-app.com/oauth/callback"
+        }
+      },
+      "OAuthScope": {
+        "name": "scope",
+        "in": "query",
+        "required": false,
+        "description": "Include one or more scope values (space-separated) to request additional levels of access.<br/> The values will depend on the particular service.<br/>",
+        "schema": {
+          "type": "string",
+          "example": "user:view user:edit"
+        }
+      },
+      "OAuthState": {
+        "name": "state",
+        "in": "query",
+        "required": false,
+        "description": "The state parameter serves two functions.<br/> When the user is redirected back to your app, whatever value you include as the state will also be included in the redirect.<br/> This gives your app a chance to persist data between the user being directed to the authorization server and back again, such as using the state parameter as a session key. This may be used to indicate what action in the app to perform after authorization is complete, for example, indicating which of your app’s pages to redirect to after authorization. This also serves as a CSRF protection mechanism.<br/> When the user is redirected back to your app, double check that the state value matches what you set it to originally. This will ensure an attacker can’t intercept the authorization flow.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "requestBodies": {
+      "OAuthAccessTokenExchange": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "grant_type",
+                "code",
+                "redirect_uri",
+                "client_id",
+                "client_secret"
+              ],
+              "properties": {
+                "grant_type": {
+                  "type": "string",
+                  "enum": [
+                    "authorization_code"
+                  ]
+                },
+                "code": {
+                  "type": "string",
+                  "description": "This parameter is for the authorization code received from the authorization server which will be in the query string parameter “code” in this request."
+                },
+                "redirect_uri": {
+                  "type": "string",
+                  "format": "uri",
+                  "example": "https://example-app.com/oauth/callback",
+                  "description": "If the redirect URL was included in the initial authorization request,<br/> it must be included in the token request as well, and must be identical.<br/> Some services support registering multiple redirect URLs, and some require the redirect URL to be specified on each request.<br/>"
+                },
+                "client_id": {
+                  "type": "string"
+                },
+                "client_secret": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Register": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "email"
+              ],
+              "properties": {
+                "email": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "RegisterConfirmation": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "confirmationCode",
+                "firstName",
+                "lastName",
+                "password"
+              ],
+              "properties": {
+                "confirmationCode": {
+                  "type": "string"
+                },
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "SessionCreate": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "required": [
+                "email",
+                "password"
+              ],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "SessionUser": {
+        "description": "Current user in a session",
+        "type": "object",
+        "required": [
+          "firstName",
+          "lastName"
+        ],
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "inner": {
+            "type": "object",
+            "properties": {
+              "foo": {
+                "type": "number"
+              },
+              "bar": {
+                "type": "integer"
+              },
+              "baz": {
+                "type": "object",
+                "properties": {
+                  "demo": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "required": [
+              "baz",
+              "bar"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
