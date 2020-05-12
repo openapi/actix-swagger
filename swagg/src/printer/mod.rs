@@ -52,8 +52,8 @@ mod tests {
         api::{ApiModule, ApiStruct, BindApiMethod, HttpMethod, ImplApi},
         components::{
             parameters::ParametersModule, request_bodies::RequestBodiesModule,
-            responses::ResponsesModule, Component, ComponentsModule, EnumVariant, Field, FieldType,
-            FormatFloat, FormatInteger, FormatString, NativeType,
+            responses::ResponsesModule, schemas::SchemasModule, Component, ComponentsModule,
+            EnumVariant, Field, FieldType, FormatFloat, FormatInteger, FormatString, NativeType,
         },
         paths::{
             ContentType, Path, PathsModule, QueryParam, ResponseEnum, ResponseStatus, StatusVariant,
@@ -202,6 +202,62 @@ mod tests {
                             },
                         ],
                     },
+                    Component::Object {
+                        name: "RegisterConfirmation".to_owned(),
+                        description: None,
+                        fields: vec![
+                            Field {
+                                name: "confirmationCode".to_owned(),
+                                required: true,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::String {
+                                    format: FormatString::default(),
+                                }),
+                            },
+                            Field {
+                                name: "firstName".to_owned(),
+                                required: true,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::String {
+                                    format: FormatString::default(),
+                                }),
+                            },
+                            Field {
+                                name: "lastName".to_owned(),
+                                required: true,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::String {
+                                    format: FormatString::default(),
+                                }),
+                            },
+                            Field {
+                                name: "password".to_owned(),
+                                required: true,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::String {
+                                    format: FormatString::default(),
+                                }),
+                            },
+                            Field {
+                                name: "demo".to_owned(),
+                                required: false,
+                                description: None,
+                                field_type: FieldType::Native(NativeType::Float {
+                                    format: FormatFloat::default(),
+                                }),
+                            },
+                            Field {
+                                name: "customizer".to_owned(),
+                                required: false,
+                                description: None,
+                                field_type: FieldType::Internal("crate::app::MySuperType".to_owned()),
+                            },
+                        ],
+                    },
+                ],
+            },
+            schemas: SchemasModule {
+                list: vec![
                     Component::Object {
                         name: "RegisterConfirmation".to_owned(),
                         description: None,
@@ -469,6 +525,21 @@ mod tests {
                     #[doc = "UTC Unix TimeStamp when the link expires"]
                     #[serde(rename = "expiresAt")]
                     pub expires_at: i64,
+                }
+            }
+            pub mod schemas {
+                use serde::{Deserialize, Serialize};
+                #[derive(Debug, Serialize, Deserialize)]
+                pub struct RegisterConfirmation {
+                    #[serde(rename = "confirmationCode")]
+                    pub confirmation_code: String,
+                    #[serde(rename = "firstName")]
+                    pub first_name: String,
+                    #[serde(rename = "lastName")]
+                    pub last_name: String,
+                    pub password: String,
+                    pub demo: Option<f32>,
+                    pub customizer: Option<crate::app::MySuperType>,
                 }
             }
         }

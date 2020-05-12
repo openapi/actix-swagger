@@ -38,6 +38,9 @@ pub mod components {
     pub mod responses {
         use serde::{Deserialize, Serialize};
     }
+    pub mod schemas {
+        use serde::{Deserialize, Serialize};
+    }
 }
 pub mod paths {
     use super::components::{parameters, responses};

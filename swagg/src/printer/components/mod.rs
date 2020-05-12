@@ -6,3 +6,4 @@ pub mod module;
 pub mod parameters;
 pub mod request_bodies;
 pub mod responses;
+pub mod schemas;

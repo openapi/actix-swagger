@@ -336,3 +336,31 @@ components:
                 format: email
               password:
                 type: string
+
+  schemas:
+    SessionUser:
+      description: Current user in a session
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        inner:
+          type: object
+          properties:
+            foo:
+              type: number
+            bar:
+              type: integer
+            baz:
+              type: object
+              properties:
+                demo:
+                  type: string
+          required:
+            - baz
+            - bar

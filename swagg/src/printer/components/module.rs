@@ -1,6 +1,7 @@
 use super::parameters::ParametersModule;
 use super::request_bodies::RequestBodiesModule;
 use super::responses::ResponsesModule;
+use super::schemas::SchemasModule;
 use crate::printer::Printable;
 use quote::quote;
 
@@ -9,6 +10,7 @@ pub struct ComponentsModule {
     pub parameters: ParametersModule,
     pub request_bodies: RequestBodiesModule,
     pub responses: ResponsesModule,
+    pub schemas: SchemasModule,
 }
 
 impl Printable for ComponentsModule {
@@ -16,12 +18,14 @@ impl Printable for ComponentsModule {
         let parameters = self.parameters.print();
         let request_bodies = self.request_bodies.print();
         let responses = self.responses.print();
+        let schemas = self.schemas.print();
 
         quote! {
             pub mod components {
                 #parameters
                 #request_bodies
                 #responses
+                #schemas
             }
         }
     }
@@ -44,6 +48,9 @@ mod tests {
                 use serde::{Deserialize, Serialize};
             }
             pub mod responses {
+                use serde::{Deserialize, Serialize};
+            }
+            pub mod schemas {
                 use serde::{Deserialize, Serialize};
             }
         }
