@@ -1,6 +1,6 @@
 [package]
 name = "swagg"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Sergey Sova <mail@sergeysova.com>"]
 categories = [
   "development-tools",
