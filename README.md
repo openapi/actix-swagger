@@ -1,5 +1,11 @@
 # actix swagger
 
+## Ideas
+
+- run function for each path and component with custom mutable state
+- run hooks before and after each/all path and components to compute data
+- run hooks immediately before rendering to file, to structure and validate data
+
 ## Usage
 
 > Not for production use yet

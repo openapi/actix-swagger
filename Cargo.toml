@@ -1,5 +1,6 @@
 [workspace]
-members = ["actix-swagger", "cargo-swagg", "swagg", "demo"]
+# members = ["actix-swagger", "cargo-swagg", "swagg", "demo"]
+members = ["alternate"]
 
 [patch.crates-io]
-swagg = { path = "./swagg" }
+# swagg = { path = "./swagg" }
