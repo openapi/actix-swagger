@@ -1,31 +1,22 @@
-use openapiv3::{
-    Header, OpenAPI, Operation, Parameter, ReferenceOr, RequestBody, Response, Schema,
-    SecurityScheme,
-};
+use openapiv3::{OpenAPI, ReferenceOr};
 
-mod actix;
-mod resolver;
+#[cfg(feature = "actix")]
+use openapi_actix::ActixPlugin;
 
+use openapi_hooks::{Hooks, Internal, Method};
+use openapi_resolver::{resolve_reference, RefResolve};
 pub use openapiv3 as openapi;
-use resolver::{resolve_reference, RefResolve};
 
-#[derive(Debug)]
-pub enum Method {
-    Get,
-    Put,
-    Post,
-    Delete,
-    Options,
-    Head,
-    Patch,
-    Trace,
-}
-pub struct Internal<'a> {
+struct DefaultPlugin {}
+
+impl<'a, I: Internal<'a>> Hooks<'a, I> for DefaultPlugin {}
+
+pub struct InternalApi<'a> {
     files: std::collections::HashMap<String, String>,
     api: &'a OpenAPI,
 }
 
-impl<'a> Internal<'a> {
+impl<'a> InternalApi<'a> {
     fn new(api: &'a OpenAPI) -> Self {
         Self {
             api,
@@ -34,84 +25,20 @@ impl<'a> Internal<'a> {
     }
 }
 
-// impl<'a> Internal<'a> for Api<'a> {
-impl<'a> Internal<'a> {
-    pub fn create_file(&mut self, name: String, content: String) {
+impl<'a> Internal<'a> for InternalApi<'a> {
+    fn create_file(&mut self, name: String, content: String) {
         self.files.insert(name, content);
     }
 
-    pub fn resolve<T>(&'a self, source: &'a ReferenceOr<T>) -> Option<&'a T>
+    fn resolve<T>(&'a self, source: &'a ReferenceOr<T>) -> Option<&'a T>
     where
         &'a T: RefResolve<'a>,
     {
         resolve_reference(source, &self.api)
     }
 
-    pub fn root(&'a self) -> &'a OpenAPI {
+    fn root(&'a self) -> &'a OpenAPI {
         self.api
-    }
-}
-
-trait Plugin<'a> {
-    fn on_operation(
-        &'a mut self,
-        _method: Method,
-        _path: &'a str,
-        _operation: &'a Operation,
-        _internal: &'a Internal<'a>,
-    ) {
-    }
-
-    fn on_security_scheme(
-        &'a mut self,
-        _name: &'a str,
-        _security_scheme: &'a SecurityScheme,
-        _internal: &'a Internal<'a>,
-    ) {
-    }
-
-    fn on_response(
-        &'a mut self,
-        _name: &'a str,
-        _response: &'a Response,
-        _internal: &'a Internal<'a>,
-    ) {
-    }
-
-    fn on_parameter(
-        &'a mut self,
-        _name: &'a str,
-        _parameter: &'a Parameter,
-        _internal: &'a Internal<'a>,
-    ) {
-    }
-
-    fn on_request_body(
-        &'a mut self,
-        _name: &'a str,
-        _request_body: &'a RequestBody,
-        _internal: &'a Internal<'a>,
-    ) {
-    }
-
-    fn on_header(&'a mut self, _name: &'a str, _header: &'a Header, _internal: &'a Internal<'a>) {}
-
-    fn on_schema(&'a mut self, _name: &'a str, _schema: &'a Schema, _internal: &'a Internal<'a>) {}
-
-    /// Setup self with data from openapi before iterating over paths
-    fn pre_paths(&'a mut self, _internal: &'a Internal<'a>) {}
-
-    /// Collect data after iterating over paths
-    fn post_paths(&'a mut self, _internal: &'a Internal<'a>) {}
-
-    /// First setup before iterating over components
-    fn pre_components(&'a mut self, _internal: &'a Internal<'a>) {}
-
-    /// Finish collecting components
-    fn post_components(&'a mut self, _internal: &'a Internal<'a>) {}
-
-    fn proceed(&'a mut self, internal: &'a mut Internal<'a>) {
-        internal.create_file("lib.rs".to_owned(), "".to_owned());
     }
 }
 
@@ -120,8 +47,13 @@ fn main() {
     let content = std::fs::read_to_string(&schema).expect("file found");
     let root: OpenAPI = serde_yaml::from_str(&content).expect("parsed to struct");
 
-    let mut plugin = actix::ActixPlugin::new();
-    let mut internal = Internal::new(&root);
+    let mut internal = InternalApi::new(&root);
+
+    #[cfg(feature = "actix")]
+    let mut plugin = ActixPlugin::new();
+
+    #[cfg(not(feature = "actix"))]
+    let mut plugin = DefaultPlugin {};
 
     plugin.pre_components(&internal);
     if let Some(ref components) = root.components {

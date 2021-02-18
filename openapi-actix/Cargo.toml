@@ -1,0 +1,10 @@
+[package]
+authors = ["Sergey Sova <mail@sergeysova.com>"]
+edition = "2018"
+name = "openapi-actix"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+openapi-hooks = "0.1.0"

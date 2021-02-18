@@ -8,6 +8,9 @@ version = "0.1.0"
 
 [dependencies]
 indexmap = {version = "1.0", features = ["serde-1"]}
+openapi-actix = {version = "0.1.0", optional = true}
+openapi-hooks = "0.1.0"
+openapi-resolver = "0.1.0"
 openapiv3 = "0.3.2"
 proc-macro2 = "1.0"
 quote = "1.0"
@@ -18,3 +21,8 @@ serde_yaml = "0.8"
 [dev-dependencies]
 insta = {version = "1.6", features = ["ron", "redactions"]}
 tempfile = "3.2"
+
+[features]
+default = ["actix"]
+
+actix = ["openapi-actix"]

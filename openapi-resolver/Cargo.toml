@@ -1,0 +1,15 @@
+[package]
+authors = ["Sergey Sova <mail@sergeysova.com>"]
+description = "$ref resolver for OpenAPI schemas"
+edition = "2018"
+license = "MIT"
+name = "openapi-resolver"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+openapiv3 = "0.3.2"
+
+[dev-dependencies]
+insta = {version = "1.6", features = ["ron", "redactions"]}

@@ -6,6 +6,9 @@ version = "0.1.0"
 dependencies = [
  "indexmap",
  "insta",
+ "openapi-actix",
+ "openapi-hooks",
+ "openapi-resolver",
  "openapiv3",
  "proc-macro2",
  "quote",
@@ -195,6 +198,29 @@ name = "opaque-debug"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2839e79665f131bdb5782e51f2c6c9599c133c6098982a54c794358bf432529c"
+
+[[package]]
+name = "openapi-actix"
+version = "0.1.0"
+dependencies = [
+ "openapi-hooks",
+]
+
+[[package]]
+name = "openapi-hooks"
+version = "0.1.0"
+dependencies = [
+ "openapi-resolver",
+ "openapiv3",
+]
+
+[[package]]
+name = "openapi-resolver"
+version = "0.1.0"
+dependencies = [
+ "insta",
+ "openapiv3",
+]
 
 [[package]]
 name = "openapiv3"
