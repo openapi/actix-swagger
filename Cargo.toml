@@ -1,5 +1,9 @@
 [workspace]
-members = ["actix-swagger", "cargo-swagg", "swagg", "demo"]
+# members = ["actix-swagger", "cargo-swagg", "swagg", "demo"]
+members = ["alternate", "openapi-hooks", "openapi-actix", "openapi-resolver"]
 
 [patch.crates-io]
-swagg = { path = "./swagg" }
+# swagg = { path = "./swagg" }
+openapi-actix = {path = './openapi-actix'}
+openapi-hooks = {path = './openapi-hooks'}
+openapi-resolver = {path = './openapi-resolver'}
