@@ -3,13 +3,13 @@ use openapiv3::{OpenAPI, ReferenceOr};
 #[cfg(feature = "actix")]
 use openapi_actix::ActixPlugin;
 
-use openapi_hooks::{Hooks, Internal, Method};
+use openapi_hooks::{Internal, Method, Plugin};
 use openapi_resolver::{resolve_reference, RefResolve};
 pub use openapiv3 as openapi;
 
 struct DefaultPlugin {}
 
-impl<'a, I: Internal<'a>> Hooks<'a, I> for DefaultPlugin {}
+impl<'a, I: Internal<'a>> Plugin<'a, I> for DefaultPlugin {}
 
 pub struct InternalApi<'a> {
     files: std::collections::HashMap<String, String>,

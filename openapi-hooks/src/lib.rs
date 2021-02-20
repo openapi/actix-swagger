@@ -28,7 +28,7 @@ pub trait Internal<'a> {
     fn root(&'a self) -> &'a OpenAPI;
 }
 
-pub trait Hooks<'a, I: Internal<'a>> {
+pub trait Plugin<'a, I: Internal<'a>> {
     fn on_operation(
         &'a mut self,
         _method: Method,
