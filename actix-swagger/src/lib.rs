@@ -114,7 +114,7 @@ impl<'a, T: Serialize> Responder for Answer<'a, T> {
     fn respond_to(self, _: &HttpRequest) -> HttpResponse {
         let body = match self.to_string() {
             Ok(body) => body,
-            Err(e) => return HttpResponse::from_error(e.into()),
+            Err(e) => return HttpResponse::from_error(e)
         };
 
         let mut response = &mut HttpResponse::build(self.status_code.unwrap_or(StatusCode::OK));

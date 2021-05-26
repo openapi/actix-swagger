@@ -433,7 +433,7 @@ mod tests {
             }
             use super::paths;
             use actix_swagger::{Answer, Method};
-            use actix_web::{dev::Factory, FromRequest};
+            use actix_web::FromRequest;
             use std::future::Future;
             impl ExampleApiDef {
                 pub fn bind_session_get<F, T, R>(mut self, handler: F) -> Self

@@ -84,7 +84,7 @@ impl Printable for ImplApi {
         let methods = self.methods.print();
 
         quote! {
-            use actix_web::{FromRequest, dev::Factory};
+            use actix_web::FromRequest;
             use actix_swagger::{Answer, Method};
             use std::future::Future;
             use super::paths;
@@ -114,7 +114,7 @@ mod tests {
         assert_snapshot!(shot(ImplApi::default()), @r###"
         use super::paths;
         use actix_swagger::{Answer, Method};
-        use actix_web::{dev::Factory, FromRequest};
+        use actix_web::FromRequest;
         use std::future::Future;
         impl Api {}
         "###);
@@ -130,7 +130,7 @@ mod tests {
         assert_snapshot!(shot(api), @r###"
         use super::paths;
         use actix_swagger::{Answer, Method};
-        use actix_web::{dev::Factory, FromRequest};
+        use actix_web::FromRequest;
         use std::future::Future;
         impl Hello {}
         "###);
@@ -154,17 +154,17 @@ mod tests {
         assert_snapshot!(shot(vec![api1, api2, api3]), @r###"
         use super::paths;
         use actix_swagger::{Answer, Method};
-        use actix_web::{dev::Factory, FromRequest};
+        use actix_web::FromRequest;
         use std::future::Future;
         impl HelloGoof {}
         use super::paths;
         use actix_swagger::{Answer, Method};
-        use actix_web::{dev::Factory, FromRequest};
+        use actix_web::FromRequest;
         use std::future::Future;
         impl ThatsMyName {}
         use super::paths;
         use actix_swagger::{Answer, Method};
-        use actix_web::{dev::Factory, FromRequest};
+        use actix_web::FromRequest;
         use std::future::Future;
         impl RandomizeThisFWooorld {}
         "###);
@@ -182,7 +182,7 @@ mod tests {
         assert_snapshot!(shot(api(vec![method])), @r###"
         use super::paths;
         use actix_swagger::{Answer, Method};
-        use actix_web::{dev::Factory, FromRequest};
+        use actix_web::FromRequest;
         use std::future::Future;
         impl TestApi {
             pub fn bind_hey_make_my_day<F, T, R>(mut self, handler: F) -> Self
@@ -219,7 +219,7 @@ mod tests {
         assert_snapshot!(shot(api(vec![method1, method2])), @r###"
         use super::paths;
         use actix_swagger::{Answer, Method};
-        use actix_web::{dev::Factory, FromRequest};
+        use actix_web::FromRequest;
         use std::future::Future;
         impl TestApi {
             pub fn bind_hey_make_my_day<F, T, R>(mut self, handler: F) -> Self
@@ -263,7 +263,7 @@ mod tests {
         assert_snapshot!(shot(api(vec![method])), @r###"
         use super::paths;
         use actix_swagger::{Answer, Method};
-        use actix_web::{dev::Factory, FromRequest};
+        use actix_web::FromRequest;
         use std::future::Future;
         impl TestApi {
             #[doc = "Request body - super::requst_bodies::SessionCreateBody"]
