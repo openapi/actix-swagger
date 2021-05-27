@@ -1,16 +1,22 @@
-use actix_http::Response;
+#![deny(warnings)]
+
+mod error;
+
+pub use error::Error;
+
 use actix_web::{
-    dev::{AppService, Factory, HttpServiceFactory},
+    cookie::Cookie,
+    dev::{AppService, HttpServiceFactory},
     http::header::{self, IntoHeaderValue},
-    http::{Cookie, HeaderName, HeaderValue},
-    web, Error, FromRequest, HttpRequest, Responder, Scope,
+    http::{HeaderName, HeaderValue},
+    web, FromRequest, HttpRequest, HttpResponse, Responder, Scope,
 };
-use futures::future::{err, ok, Ready};
 use serde::Serialize;
 use std::collections::HashMap;
-use std::future::Future;
 
 pub use actix_web::http::StatusCode;
+use std::future::Future;
+use actix_web::dev::Handler;
 
 /// Set content-type supported by actix-swagger
 #[derive(Debug)]
@@ -64,7 +70,7 @@ impl<'a, T: Serialize> Answer<'a, T> {
     where
         V: IntoHeaderValue,
     {
-        if let Ok(value) = value.try_into() {
+        if let Ok(value) = value.try_into_value() {
             self.headers.insert(key, value);
         }
 
@@ -105,24 +111,21 @@ impl<'a, T: Serialize> Answer<'a, T> {
 }
 
 impl<'a, T: Serialize> Responder for Answer<'a, T> {
-    type Error = Error;
-    type Future = Ready<Result<Response, Error>>;
-
-    fn respond_to(self, _: &HttpRequest) -> Self::Future {
+    fn respond_to(self, _: &HttpRequest) -> HttpResponse {
         let body = match self.to_string() {
             Ok(body) => body,
-            Err(e) => return err(e.into()),
+            Err(e) => return HttpResponse::from_error(e.into()),
         };
 
-        let mut response = &mut Response::build(self.status_code.unwrap_or(StatusCode::OK));
+        let mut response = &mut HttpResponse::build(self.status_code.unwrap_or(StatusCode::OK));
 
         if let Some(content_type) = self.content_type {
-            response = response.header(header::CONTENT_TYPE, content_type.to_string());
+            response = response.append_header((header::CONTENT_TYPE, content_type.to_string()));
         }
 
         for (name, value) in self.headers {
             if let Some(header_name) = name.parse::<HeaderName>().ok() {
-                response = response.header(header_name, value)
+                response = response.append_header((header_name, value))
             }
         }
 
@@ -130,7 +133,7 @@ impl<'a, T: Serialize> Responder for Answer<'a, T> {
             response = response.cookie(cookie);
         }
 
-        ok(response.body(body))
+        response.body(body)
     }
 }
 
@@ -151,12 +154,12 @@ impl Api {
     }
 
     /// Attach route to path
-    pub fn bind<F, T, R, U>(mut self, path: String, method: Method, handler: F) -> Self
+    pub fn bind<T, F, R>(mut self, path: String, method: Method, handler: F) -> Self
     where
-        F: Factory<T, R, U>,
         T: FromRequest + 'static,
-        R: Future<Output = U> + 'static,
-        U: Responder + 'static,
+        R: Future + 'static,
+        R::Output: Responder + 'static,
+        F: Handler<T, R>
     {
         let scope_path = path.clone();
         take_mut::take(
