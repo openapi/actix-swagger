@@ -294,7 +294,7 @@ dependencies = [
 
 [[package]]
 name = "actix-swagger"
-version = "0.3.0-beta.8"
+version = "0.3.0-beta.1"
 dependencies = [
  "actix-http 3.0.0-beta.8",
  "actix-rt 2.2.0",
