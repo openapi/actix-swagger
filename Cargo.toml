@@ -3,7 +3,7 @@ members = [
     "actix-swagger",
     "cargo-swagg",
     "swagg",
-    #"demo"
+    "demo"
 ]
 
 [patch.crates-io]
