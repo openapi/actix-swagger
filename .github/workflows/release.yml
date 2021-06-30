@@ -1,0 +1,56 @@
+name: Rust CI
+
+on:
+  push:
+    branches:
+      - release
+    paths:
+      - 'actix-swagger/Cargo.toml'
+      - 'cargo-swagg/Cargo.toml'
+      - '.github/workflows/release.yml'
+
+jobs:
+  publish:
+    name: Rust project
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        package:
+          - name: actix-swagger
+            registryName: actix-swagger
+            path: actix-swagger
+          - name: cargo-swagg
+            registryName: cargo-swagg
+            path: cargo-swagg
+    steps:
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get version
+        working-directory: ${{ matrix.package.path }}
+        run: echo PACKAGE_VERSION=$(sed -nE 's/^\s*version = "(.*?)"/\1/p' Cargo.toml) >> $GITHUB_ENV
+      - name: Check published version
+        run: echo PUBLISHED_VERSION=$(cargo search ${{ matrix.package.registryName }} --limit 1 | sed -nE 's/^[^"]*"//; s/".*//1p' -) >> $GITHUB_ENV
+      - name: Сargo login
+        if: env.PACKAGE_VERSION != env.PUBLISHED_VERSION
+        run: cargo login ${{ secrets.CRATES_TOKEN }}
+      - name: Сargo package
+        if: env.PACKAGE_VERSION != env.PUBLISHED_VERSION
+        working-directory: ${{ matrix.package.path }}
+        run: |
+          cargo package
+          echo "We will publish:" $PACKAGE_VERSION
+          echo "This is current latest:" $PUBLISHED_VERSION
+
+      - name: Publish ${{ matrix.package.name }}
+        if: env.PACKAGE_VERSION != env.PUBLISHED_VERSION
+        working-directory: ${{ matrix.package.path }}
+        run: |
+          echo "# Cargo Publish"
+          cargo publish --no-verify
