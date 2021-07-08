@@ -24,3 +24,7 @@ actix-http = "3.0.0-beta.8"
 futures = "0.3.15"
 serde_urlencoded = "0.6.1"
 take_mut = "0.2.2"
+actix-swagger-derive = { path = "../actix-swagger-derive", optional = true }
+
+[features]
+macros = ["actix-swagger-derive"]
