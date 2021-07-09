@@ -11,8 +11,6 @@ pub fn pretty(input: String) -> String {
     file.write_all(input.as_bytes())
         .expect("Failed to write source");
 
-    drop(file);
-
     let mut child = Command::new("rustfmt")
         .arg("--emit")
         .arg("files")
@@ -29,7 +27,6 @@ pub fn pretty(input: String) -> String {
     file.read_to_string(&mut result)
         .expect("Failed to read from tempfile");
 
-    drop(file);
     dir.close().expect("Failed to close directory");
 
     result.trim().to_owned()
