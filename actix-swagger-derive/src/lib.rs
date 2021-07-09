@@ -1,11 +1,9 @@
 mod args;
 mod expand;
 mod input;
-mod meta;
 
 extern crate proc_macro;
 
-use crate::meta::METADATA;
 use args::SwaggerArgs;
 use convert_case::{Case, Casing};
 use once_cell::sync::Lazy;
@@ -14,6 +12,7 @@ use proc_macro::TokenStream;
 use proc_macro2::Span;
 use std::io::BufReader;
 use syn::{parse_macro_input, ItemFn};
+use actix_swagger_codegen::parse_schema;
 
 #[proc_macro_attribute]
 pub fn swagger(args: TokenStream, input: TokenStream) -> TokenStream {

@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use once_cell::sync::Lazy;
 
 #[derive(thiserror::Error, Debug)]
-enum OpenApiError {
+pub enum OpenApiError {
     #[error("OpenApi schema not found in crate directory!")]
     NotFound,
     #[error("Io error: {0}")]
