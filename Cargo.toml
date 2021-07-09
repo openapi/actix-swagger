@@ -1,10 +1,11 @@
 [workspace]
 members = [
     "actix-swagger",
+    "actix-swagger-derive",
+    "actix-swagger-codegen",
     "cargo-swagg",
     "swagg",
     "demo",
-    "actix-swagger-derive"
 ]
 
 [patch.crates-io]

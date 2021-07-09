@@ -1,0 +1,18 @@
+[package]
+name = "actix-swagger-codegen"
+version = "0.1.0"
+authors = ["Kirill Mironov <vetrokm@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/openapi/actix-swagger"
+documentation = "https://docs.rs/actix-swagger-build"
+readme = "README.md"
+edition = "2018"
+description = "Codegen from openapi schema"
+
+[dependencies]
+openapiv3 = "0.5.0"
+once_cell = "1.8.0"
+serde_yaml = "0.8.17"
+serde_json = "1.0.64"
+convert_case = "0.4.0"
+thiserror = "1.0.26"
