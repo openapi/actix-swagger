@@ -24,7 +24,7 @@ pub mod api {
     }
     use super::paths;
     use actix_swagger::{Answer, Method};
-    use actix_web::{dev::Factory, FromRequest};
+    use actix_web::FromRequest;
     use std::future::Future;
     impl DemoApi {}
 }
