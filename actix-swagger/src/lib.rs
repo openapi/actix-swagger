@@ -4,12 +4,13 @@ mod error;
 
 pub use error::Error;
 
+use actix_http::Method;
 use actix_web::{
     cookie::Cookie,
     dev::{AppService, HttpServiceFactory},
     http::header::{self, IntoHeaderValue},
     http::{HeaderName, HeaderValue},
-    web, FromRequest, HttpRequest, HttpResponse, Responder, Scope,
+    FromRequest, HttpRequest, HttpResponse, Responder, Route, Scope,
 };
 use serde::Serialize;
 use std::collections::HashMap;
@@ -24,15 +25,6 @@ pub enum ContentType {
     Json,
     FormData,
     // TextPlain,
-}
-
-#[derive(Debug)]
-pub enum Method {
-    DELETE,
-    GET,
-    PATCH,
-    POST,
-    PUT,
 }
 
 impl ToString for ContentType {
@@ -124,7 +116,7 @@ impl<'a, T: Serialize> Responder for Answer<'a, T> {
         }
 
         for (name, value) in self.headers {
-            if let Some(header_name) = name.parse::<HeaderName>().ok() {
+            if let Ok(header_name) = name.parse::<HeaderName>() {
                 response = response.append_header((header_name, value))
             }
         }
@@ -142,43 +134,36 @@ impl<'a, T: Serialize> Responder for Answer<'a, T> {
 /// Handler scope and routes
 pub struct Api {
     root: Scope,
-    routes: HashMap<String, Scope>,
+    resources: HashMap<String, Route>,
+}
+
+impl Default for Api {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Api {
     pub fn new() -> Self {
         Api {
-            root: Scope::new("/"),
-            routes: HashMap::new(),
+            root: Scope::new(""),
+            resources: HashMap::new(),
         }
     }
 
     /// Attach route to path
-    pub fn bind<T, F, R>(mut self, path: String, method: Method, handler: F) -> Self
+    pub fn bind<T, F, R>(mut self, path: &str, method: Method, handler: F) -> Self
     where
         T: FromRequest + 'static,
         R: Future + 'static,
         R::Output: Responder + 'static,
         F: Handler<T, R>,
     {
-        let scope_path = path.clone();
         take_mut::take(
-            self.routes
-                .entry(path)
-                .or_insert_with(move || web::scope(scope_path.as_ref())),
-            |scope| {
-                scope.route(
-                    "",
-                    match method {
-                        Method::DELETE => web::delete(),
-                        Method::GET => web::get(),
-                        Method::PATCH => web::patch(),
-                        Method::POST => web::post(),
-                        Method::PUT => web::put(),
-                    }
-                    .to(handler),
-                )
-            },
+            self.resources
+                .entry(path.to_owned())
+                .or_insert_with(Route::new),
+            |route| route.method(method).to(handler),
         );
 
         self
@@ -187,11 +172,11 @@ impl Api {
 
 impl HttpServiceFactory for Api {
     fn register(mut self, config: &mut AppService) {
-        let keys: Vec<String> = self.routes.keys().cloned().collect();
+        let keys: Vec<String> = self.resources.keys().cloned().collect();
 
         for key in keys.iter() {
-            if let Some(resource) = self.routes.remove(key) {
-                self.root = self.root.service(resource);
+            if let Some(resource) = self.resources.remove(key) {
+                self.root = self.root.route(key, resource);
             }
         }
 
