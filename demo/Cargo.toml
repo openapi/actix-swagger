@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 actix-swagger = { path = "../actix-swagger" }
-actix-web = { git = "https://github.com/Drevoed/actix-web", branch = "fix/rustls-update" }
+actix-web = "4.0.0-beta.10"
 serde = "1.0.130"

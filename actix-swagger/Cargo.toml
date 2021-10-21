@@ -15,12 +15,12 @@ edition = "2018"
 repository = "https://github.com/sergeysova/actix-swagger"
 
 [dependencies]
-actix-web = { git = "https://github.com/Drevoed/actix-web", branch = "fix/rustls-update" }
+actix-web = "4.0.0-beta.10"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0.25"
 actix-rt = "2.3.0"
-actix-http = { git = "https://github.com/Drevoed/actix-web", branch = "fix/rustls-update" }
+actix-http = "3.0.0-beta.10"
 futures = "0.3.15"
 serde_urlencoded = "0.7.0"
 take_mut = "0.2.2"
