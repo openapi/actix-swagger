@@ -8,13 +8,13 @@ use actix_http::Method;
 use actix_web::{
     cookie::Cookie,
     dev::{AppService, HttpServiceFactory},
-    http::header::{self, IntoHeaderValue},
-    http::{HeaderName, HeaderValue},
+    http::header::{self, HeaderName, HeaderValue, TryIntoHeaderValue},
     FromRequest, HttpRequest, HttpResponse, Responder, Route, Scope,
 };
 use serde::Serialize;
 use std::collections::HashMap;
 
+use actix_http::body::BoxBody;
 use actix_web::dev::Handler;
 pub use actix_web::http::StatusCode;
 use std::future::Future;
@@ -60,7 +60,7 @@ impl<'a, T: Serialize> Answer<'a, T> {
     /// Set header to answer
     pub fn header<V>(mut self, key: String, value: V) -> Self
     where
-        V: IntoHeaderValue,
+        V: TryIntoHeaderValue,
     {
         if let Ok(value) = value.try_into_value() {
             self.headers.insert(key, value);
@@ -103,6 +103,8 @@ impl<'a, T: Serialize> Answer<'a, T> {
 }
 
 impl<'a, T: Serialize> Responder for Answer<'a, T> {
+    type Body = BoxBody;
+
     fn respond_to(self, _: &HttpRequest) -> HttpResponse {
         let body = match self.to_string() {
             Ok(body) => body,
@@ -157,7 +159,8 @@ impl Api {
         T: FromRequest + 'static,
         R: Future + 'static,
         R::Output: Responder + 'static,
-        F: Handler<T, R>,
+        F: Handler<T, Future = R>,
+        F::Output: Responder + 'static,
     {
         take_mut::take(
             self.resources
