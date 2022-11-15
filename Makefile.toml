@@ -1,0 +1,80 @@
+[config]
+default_to_workspace = false
+
+# Cargo make implicit rules can be found at
+# https://github.com/sagiegurari/cargo-make/tree/master/src/lib/descriptor/makefiles
+
+# This replaces the cargo-make 'default' task
+[tasks.default]
+alias = "demo"
+
+[tasks.demo]
+dependencies = [
+  "demo-compile-yaml",
+  "demo-compile-json",
+  "demo-format",
+  "demo-check",
+]
+
+
+[tasks.demo-compile-yaml]
+command = "cargo"
+args = [
+    "run",
+    "--package",
+    "cargo-swagg",
+    "--",
+    "./demo/openapi.yaml",
+    "--out-file",
+    "./demo/src/lib.rs",
+]
+
+
+[tasks.demo-compile-json]
+command = "cargo"
+args = [
+    "run",
+    "--package",
+    "cargo-swagg",
+    "--",
+    "./demo/openapi.json",
+    "--out-file",
+    "./demo/src/lib.rs",
+]
+
+[tasks.demo-format]
+command = "cargo"
+args = [
+    "fmt",
+    "--package",
+    "demo",
+]
+
+[tasks.demo-check]
+command = "cargo"
+args = [
+	"check",
+    "--package",
+    "demo",
+]
+
+[tasks.publish-swagg]
+command = "cargo"
+args = [
+	"publish",
+    "--manifest-path=./swagg/Cargo.toml",
+]
+
+[tasks.publish-cargo-swagg]
+command = "cargo"
+args = [
+	"publish",
+    "--manifest-path=./cargo-swagg/Cargo.toml",
+]
+
+[tasks.publish-actix]
+command = "cargo"
+args = [
+	"publish",
+    "--manifest-path=./actix-swagger/Cargo.toml",
+]

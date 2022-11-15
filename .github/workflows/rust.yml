@@ -28,7 +28,10 @@ jobs:
           args: --release
 
       - name: Demo
-        run: make
+        run: |
+          cargo install cargo-quickinstall
+          cargo quickinstall cargo-make
+          cargo make
 
       - name: Demo is building
         uses: actions-rs/cargo@v1
