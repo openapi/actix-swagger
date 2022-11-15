@@ -37,5 +37,6 @@ Install `cargo-insta` to better review experience.
 # to convert ./demo/openapi.yaml to ./demo/src/lib.rs
 # format ./demo/src/lib.rs
 # and check just run
-make
+cargo install cargo-make
+cargo make
 ```
