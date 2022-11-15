@@ -4,7 +4,7 @@ mod error;
 
 pub use error::Error;
 
-use actix_http::Method;
+pub use actix_http::Method;
 use actix_web::{
     cookie::Cookie,
     dev::{AppService, HttpServiceFactory},
